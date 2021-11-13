@@ -83,6 +83,11 @@ double S_vector::Dot(S_vector const& vec)
      return vec.z * z + vec.y * y + vec.x * x;
 }
 
+S_vector S_vector::operator-(S_vector const& vec)
+{
+    return S_vector(x - vec.x, y - vec.y, z - vec.z);
+}
+
 void S_vector::GetNormal(S_vector const& vec1, S_vector const& vec2, S_vector const& vec3)
 {
     float v4 = vec3.x - vec2.x;
