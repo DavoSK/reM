@@ -1,6 +1,9 @@
 // MafiaVehicleRe.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif 
+
 #include <iostream>
 #include <Windows.h>
 

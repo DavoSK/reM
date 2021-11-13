@@ -14,12 +14,15 @@ endif()
 
 include_directories( 
     src
+	src/engine
 )
 
 add_library(reM SHARED 
 	src/reversiblehooks/SSimpleReversibleHook.cpp
 	src/reversiblehooks/SVirtualReversibleHook.cpp
 	src/reversiblehooks/ReversibleHooks.cpp
+
+	src/engine/I3d_math.cpp
 
 	src/main.cpp
 	src/C_Vehicle.cpp

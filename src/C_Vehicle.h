@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-struct S_vector { float x; float y; float z; };
+#include <engine/I3d_math.h>
 
 class C_Vehicle
 {
