@@ -1,5 +1,9 @@
 #include "I3d_math.h"
 #include <cmath>
+#include <algorithm>
+
+#include <reversiblehooks/ReversibleHooks.h>
+#include "plugin.h"
 
 S_vector::S_vector(float x, float y, float z)
 {
@@ -122,21 +126,23 @@ S_vector S_vector::Cross(S_vector const& vec)
 
 double S_vector::CosAngleTo(S_vector const& vec)
 {
-  float val = (vec.z * z + vec.y * y + vec.x * x 
-  / sqrt(
-         (x * x
+    float val = (vec.z * z + vec.y * y + vec.x * x 
+    / sqrt(
+            (x * x
         + y * y
         + z *z)
-       * (vec.x * vec.x + vec.y * vec.y + vec.z * vec.z)));
-  return sqrt((val + 1.0f) * 0.5f);
+        * (vec.x * vec.x + vec.y * vec.y + vec.z * vec.z)));
+    return sqrt((val + 1.0f) * 0.5f);
 }
 
 double S_vector::AngleTo(S_vector const& vec)
 {   
+    float len1 = x * x + y * y + z  *z;
+    float len2 = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+    
     float dot = x * vec.x + y * vec.y + z * vec.z;
-    float lenSq1 = x * x + y * y + z  *z;
-    float lenSq2 = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
-    return acos( dot / sqrt(lenSq1 * lenSq2));
+
+    return acos(std::clamp(dot / sqrt(len1 * len2), -1.0f, 1.0f));
 }
 
 S_vector S_vector::RotateByMatrix(S_matrix const& mat)
@@ -154,4 +160,17 @@ S_vector S_vector::RotateByNormMatrix(S_matrix const& mat)
     res.RotateByMatrix(mat);
     res.SetNormalized(res);
     return res;
+}
+
+void S_vector::InitHooks()
+{
+    uint32_t engineHandle = (uint32_t)GetModuleHandle("LS3DF.dll");
+    auto rebase = [engineHandle](uint32_t adr) -> uint32_t {
+        return (adr - 0x10000000) + engineHandle;
+    };
+
+    ReversibleHooks::Install("S_vector", "CosAngleTo", rebase(0x1002E710), &S_vector::CosAngleTo);
+    ReversibleHooks::Install("S_vector", "AngleTo", rebase(0x1002E7A0), &S_vector::AngleTo);
+    ReversibleHooks::Install("S_vector", "RotateByMatrix", rebase(0x1002EA10), &S_vector::RotateByMatrix);
+    ReversibleHooks::Install("S_vector", "RotateByNormMatrix", rebase(0x1002EAB0), &S_vector::RotateByNormMatrix);
 }

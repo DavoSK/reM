@@ -8,6 +8,7 @@
 #include <Windows.h>
 
 #include "C_Vehicle.h"
+#include "engine/I3d_math.h"
 
 void Init();
 
@@ -41,5 +42,6 @@ BOOL WINAPI DllMain(
 void Init() {
     AllocConsole();
     freopen("CONOUT$", "w", stdout);
+    S_vector::InitHooks();
     C_Vehicle::InitHooks();
 }

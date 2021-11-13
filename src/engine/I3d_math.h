@@ -21,15 +21,17 @@ struct S_vector
     double Dot(S_vector const& vec);
     S_vector operator-(S_vector const& vec);
 
-    void GetNormal(S_vector const& vec1, S_vector const& vec2, S_vector const& vec3);
-    double Magnitude2() const;
-    double Magniture() const;
-    void SetNormalized(S_vector const& vec);
-    S_vector RotateByMatrix(S_matrix const& mat);
-    S_vector RotateByNormMatrix(S_matrix const& mat);
-    S_vector Cross(S_vector const& vec);
-    double CosAngleTo(S_vector const& vec);
-    double AngleTo(S_vector const& vec);
+    void __stdcall GetNormal(S_vector const& vec1, S_vector const& vec2, S_vector const& vec3);
+    double __stdcall Magnitude2() const;
+    double __stdcall Magniture() const;
+    void __stdcall  SetNormalized(S_vector const& vec);
+    S_vector __stdcall RotateByMatrix(S_matrix const& mat);
+    S_vector __stdcall RotateByNormMatrix(S_matrix const& mat);
+    S_vector __stdcall Cross(S_vector const& vec);
+    double __stdcall CosAngleTo(S_vector const& vec);
+    double __stdcall AngleTo(S_vector const& vec);
+
+    static void InitHooks();
     float x; 
     float y;
     float z;
