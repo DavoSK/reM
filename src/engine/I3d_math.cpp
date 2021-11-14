@@ -637,7 +637,7 @@ LABEL_37:
 
 void __stdcall S_matrix::SetDir3(S_vector const& v1, S_vector const& v2)
 {
-    long double v4; // st7
+    /*long double v4; // st7
     long double v5; // st7
     double v6; // st7
     float* v7; // eax
@@ -669,21 +669,22 @@ void __stdcall S_matrix::SetDir3(S_vector const& v1, S_vector const& v2)
     float v33; // [esp+30h] [ebp-Ch] BYREF
     float v34; // [esp+34h] [ebp-8h]
     float v35; // [esp+38h] [ebp-4h]
-    float thisa; // [esp+40h] [ebp+4h]
+    //float thisa; // [esp+40h] [ebp+4h]
 
-    *((_DWORD*)this + 8) = *(_DWORD*)a2;
-    *((_DWORD*)this + 9) = *((_DWORD*)a2 + 1);
-    *((_DWORD*)this + 10) = *((_DWORD*)a2 + 2);
-    thisa = *((float*)a2 + 2) * *((float*)a2 + 2)
-        + *((float*)a2 + 1) * *((float*)a2 + 1)
-        + *(float*)a2 * *(float*)a2;
-    if (fabs(thisa - 1.0) < 0.00000000999999993922529)
+ 
+    m_fData[8] = v1.x;
+    m_fData[9] = v1.y;
+    m_fData[10] = v1.z;
+
+    float mag2 = v1.x * v1.x + v1.y * v1.y + v1.z * v1.z;
+    if (fabs(mag2 - 1.0f) < 0.00000000999999993922529f)
     {
         *((_DWORD*)this + 8) = *(_DWORD*)a2;
         *((_DWORD*)this + 9) = *((_DWORD*)a2 + 1);
         *((_DWORD*)this + 10) = *((_DWORD*)a2 + 2);
         goto LABEL_17;
     }
+
     if (thisa >= 0.0000000099999999)
     {
         v5 = 1.0 / sqrt(thisa);
@@ -694,6 +695,7 @@ void __stdcall S_matrix::SetDir3(S_vector const& v1, S_vector const& v2)
         *((float*)this + 10) = v4;
         goto LABEL_17;
     }
+
     if (*(float*)a2 != 0.0)
     {
         if (*(float*)a2 >= 0.0)
@@ -702,6 +704,7 @@ void __stdcall S_matrix::SetDir3(S_vector const& v1, S_vector const& v2)
             *((float*)this + 8) = -1.0;
         goto LABEL_17;
     }
+
     if (*((float*)a2 + 2) != 0.0)
     {
         if (*((float*)a2 + 2) >= 0.0)
@@ -764,6 +767,7 @@ LABEL_17:
     S_vector::SetNormalized((float*)this + 4, &v27);
     v8 = S_vector::Cross(&v27, &v33, (float*)a2);
     S_vector::SetNormalized((float*)this, v8);
+    */
 }
 
 void __stdcall S_matrix::SetDir(S_vector const& v1, S_vector const& v2)
@@ -941,8 +945,8 @@ void I3D_math::InitHooks()
     ReversibleHooks::Install("S_matrix", "operator*=", rebase(0x1002D220), &S_matrix::operator*=);
     ReversibleHooks::Install("S_matrix", "Mul4X4", rebase(0x1002D520), &S_matrix::Mul4X4);
     ReversibleHooks::Install("S_matrix", "SetDir(struct S_vector const &)", rebase(0x1002D9D0), SetDir_v1);
-    ReversibleHooks::Install("S_matrix", "SetDir3(struct S_vector const&, struct S_vector const&)", rebase(0x1002DCF0), &S_matrix::SetDir3);
-    ReversibleHooks::Install("S_matrix", "SetDir(struct S_vector const &, struct S_vector const &)", rebase(0x1002E030), SetDir_v2);
+    //ReversibleHooks::Install("S_matrix", "SetDir3(struct S_vector const&, struct S_vector const&)", rebase(0x1002DCF0), &S_matrix::SetDir3);
+    //ReversibleHooks::Install("S_matrix", "SetDir(struct S_vector const &, struct S_vector const &)", rebase(0x1002E030), SetDir_v2);
     ReversibleHooks::Install("S_matrix", "SetRot3", rebase(0x1002E070), &S_matrix::SetRot3);
     ReversibleHooks::Install("S_matrix", "SetRot_q", rebase(0x1002E1C0), SetRot_q);
     ReversibleHooks::Install("S_matrix", "SetRot_m", rebase(0x1002E1F0), SetRot_m);
