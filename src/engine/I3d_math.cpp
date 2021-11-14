@@ -7,7 +7,6 @@
 #include "plugin.h"
 
 #pragma region VECTOR
-/* -------------- [S_vector] -------------- */
 S_vector::S_vector(float _x, float _y, float _z)
 {
     x = _x;
@@ -172,7 +171,6 @@ S_vector S_vector::RotateByNormMatrix(S_matrix const& mat)
 
 #pragma endregion
 
-/* -------------- [S_quat] -------------- */
 #pragma region QUAT
 
 S_matrix S_quat::RotationMatrix()
@@ -378,6 +376,409 @@ void __stdcall S_quat::Normalize()
 
 #pragma endregion
 
+#pragma region MATRIX
+float gIdentityMatrix[] = { 1.0f, 0.0f, 0.0f, 0.0f,
+                            0.0f, 1.0f, 0.0f, 0.0f,
+                            0.0f, 0.0f, 1.0f, 0.0f,
+                            0.0f, 0.0f, 0.0f, 0.0f };
+
+void __stdcall S_matrix::Identity()
+{
+    memcpy(m_fData, gIdentityMatrix, sizeof(S_matrix));
+}
+
+bool __stdcall S_matrix::Inverse(S_matrix const& mat)
+{
+    m_fData[0] = mat.m_fData[5] * mat.m_fData[10] - mat.m_fData[9] * mat.m_fData[6];
+    m_fData[4] = mat.m_fData[10] * mat.m_fData[4] - mat.m_fData[8] * mat.m_fData[6];
+    m_fData[8] = mat.m_fData[9] * mat.m_fData[4] - mat.m_fData[5] * mat.m_fData[8];
+
+    float mag2 = mat.m_fData[0] * m_fData[0] - m_fData[4] * mat.m_fData[1] + m_fData[8] * mat.m_fData[2];
+    if (fabs(mag2) >= 0.00000000999999993922529f)
+    {
+        float invMag = 1.0f / mag2;
+        m_fData[0] = invMag * m_fData[0];;
+        m_fData[1] = -((mat.m_fData[10] * mat.m_fData[1] - mat.m_fData[9] * mat.m_fData[2]) * invMag);
+        m_fData[2] = (mat.m_fData[6] * mat.m_fData[1] - mat.m_fData[2] * mat.m_fData[5]) * invMag;
+        m_fData[3] = 0.0f;
+        m_fData[4] = -(invMag * m_fData[4]);
+        m_fData[5] = (mat.m_fData[0] * mat.m_fData[10] - mat.m_fData[2] * mat.m_fData[8]) * invMag;
+        m_fData[6] = -((mat.m_fData[0] * mat.m_fData[6] - mat.m_fData[2] * mat.m_fData[4]) * invMag);
+        m_fData[7] = 0.0f;
+        m_fData[8] = invMag * m_fData[8];
+        m_fData[9] = -((mat.m_fData[9] * mat.m_fData[0] - mat.m_fData[8] * mat.m_fData[1]) * invMag);
+        m_fData[11] = 0.0f;
+        m_fData[10] = (mat.m_fData[5] * mat.m_fData[0] - mat.m_fData[4] * mat.m_fData[1]) * invMag;
+        m_fData[12] = -(m_fData[0] * mat.m_fData[12] + m_fData[8] * mat.m_fData[14] + m_fData[4] * mat.m_fData[13]);
+        m_fData[13] = -(m_fData[5] * mat.m_fData[13] + m_fData[9] * mat.m_fData[14] + mat.m_fData[12] * m_fData[1]);
+        m_fData[14] = -((m_fData[6] * mat.m_fData[13] + m_fData[2] * mat.m_fData[12]) + mat.m_fData[14] * m_fData[10]);
+        m_fData[15] = 1.0f;
+    }
+    else
+    {
+        memcpy(m_fData, &gIdentityMatrix, 0x40u);
+        return false;
+    }
+    return true;
+}
+
+S_matrix __stdcall S_matrix::RotateByMatrix(S_matrix const& mat)
+{
+    S_matrix res;   
+    res.m_fData[0] = m_fData[0] * mat.m_fData[0] + m_fData[1] * mat.m_fData[4] + m_fData[2] * mat.m_fData[8];
+    res.m_fData[1] = m_fData[0] * mat.m_fData[1] + m_fData[1] * mat.m_fData[5] + m_fData[2] * mat.m_fData[9];
+    res.m_fData[2] = m_fData[0] * mat.m_fData[2] + m_fData[1] * mat.m_fData[6] + m_fData[2] * mat.m_fData[10];
+    res.m_fData[3] = 0.0f;
+
+    res.m_fData[4] = m_fData[4] * mat.m_fData[0] + m_fData[5] * mat.m_fData[4] + m_fData[6] * mat.m_fData[8];
+    res.m_fData[5] = m_fData[4] * mat.m_fData[1] + m_fData[5] * mat.m_fData[5] + m_fData[6] * mat.m_fData[9];
+    res.m_fData[6] = m_fData[4] * mat.m_fData[2] + m_fData[5] * mat.m_fData[6] + m_fData[6] * mat.m_fData[10];
+    res.m_fData[7] = 0.0f;
+
+    res.m_fData[8] = m_fData[8] * mat.m_fData[0] + m_fData[9] * mat.m_fData[4] + m_fData[10] * mat.m_fData[8];
+    res.m_fData[9] = m_fData[8] * mat.m_fData[1] + m_fData[9] * mat.m_fData[5] + m_fData[10] * mat.m_fData[9];
+    res.m_fData[10] = m_fData[8] * mat.m_fData[2] + m_fData[9] * mat.m_fData[6] + m_fData[10] * mat.m_fData[10];
+    res.m_fData[11] = 0.0f;
+  
+    res.m_fData[12] = m_fData[12] * mat.m_fData[0] + m_fData[13] * mat.m_fData[4] + m_fData[14] * mat.m_fData[8];
+    res.m_fData[13] = m_fData[12] * mat.m_fData[1] + m_fData[13] * mat.m_fData[5] + m_fData[14] * mat.m_fData[9];
+    res.m_fData[14] = m_fData[12] * mat.m_fData[2] + m_fData[13] * mat.m_fData[6] + m_fData[14] * mat.m_fData[10];
+    res.m_fData[15] = 1.0f;
+    return res;
+}
+
+S_matrix S_matrix::operator*(S_matrix const& mat)
+{
+    S_matrix res;
+    res.m_fData[0] = m_fData[0] * mat.m_fData[0] + m_fData[1] * mat.m_fData[4] + m_fData[2] * mat.m_fData[8];
+    res.m_fData[1] = m_fData[0] * mat.m_fData[1] + m_fData[1] * mat.m_fData[5] + m_fData[2] * mat.m_fData[9];
+    res.m_fData[2] = m_fData[0] * mat.m_fData[2] + m_fData[1] * mat.m_fData[6] + m_fData[2] * mat.m_fData[10];
+    res.m_fData[3] = 0.0f;
+
+    res.m_fData[4] = m_fData[4] * mat.m_fData[0] + m_fData[5] * mat.m_fData[4] + m_fData[6] * mat.m_fData[8];
+    res.m_fData[5] = m_fData[4] * mat.m_fData[1] + m_fData[5] * mat.m_fData[5] + m_fData[6] * mat.m_fData[9];
+    res.m_fData[6] = m_fData[4] * mat.m_fData[2] + m_fData[5] * mat.m_fData[6] + m_fData[6] * mat.m_fData[10];
+    res.m_fData[7] = 0.0f;
+
+    res.m_fData[8] = m_fData[8] * mat.m_fData[0] + m_fData[9] * mat.m_fData[4] + m_fData[10] * mat.m_fData[8];
+    res.m_fData[9] = m_fData[8] * mat.m_fData[1] + m_fData[9] * mat.m_fData[5] + m_fData[10] * mat.m_fData[9];
+    res.m_fData[10] = m_fData[8] * mat.m_fData[2] + m_fData[9] * mat.m_fData[6] + m_fData[10] * mat.m_fData[10];
+    res.m_fData[11] = 0.0f;
+
+    res.m_fData[12] = m_fData[12] * mat.m_fData[0] + mat.m_fData[12] + m_fData[13] * mat.m_fData[4] + m_fData[14] * mat.m_fData[8];
+    res.m_fData[13] = m_fData[12] * mat.m_fData[1] + mat.m_fData[13] + m_fData[13] * mat.m_fData[5] + m_fData[14] * mat.m_fData[9];
+    res.m_fData[14] = m_fData[12] * mat.m_fData[2] + mat.m_fData[14] + m_fData[13] * mat.m_fData[6] + m_fData[14] * mat.m_fData[10];
+    res.m_fData[15] = 1.0f;
+    return res;
+}
+
+void S_matrix::operator*=(S_matrix const& mat)
+{
+    *this = *this * mat;
+}
+
+S_matrix __stdcall S_matrix::Mul4X4(S_matrix const& mat)
+{
+    S_matrix res;
+    res.m_fData[0] = m_fData[2] * mat.m_fData[8] + m_fData[3] * mat.m_fData[12] + m_fData[1] * mat.m_fData[4] + m_fData[0] * mat.m_fData[0];
+    res.m_fData[1] = m_fData[2] * mat.m_fData[9] + m_fData[3] * mat.m_fData[13] + m_fData[1] * mat.m_fData[5] + m_fData[0] * mat.m_fData[1];
+    res.m_fData[2] = m_fData[2] * mat.m_fData[10] + m_fData[3] * mat.m_fData[14] + m_fData[1] * mat.m_fData[6] + m_fData[0] * mat.m_fData[2];
+    res.m_fData[3] = m_fData[2] * mat.m_fData[11] + m_fData[3] * mat.m_fData[15] + m_fData[1] * mat.m_fData[7] + m_fData[0] * mat.m_fData[3];
+    res.m_fData[4] = m_fData[6] * mat.m_fData[8] + m_fData[7] * mat.m_fData[12] + m_fData[5] * mat.m_fData[4] + m_fData[4] * mat.m_fData[0];
+    res.m_fData[5] = m_fData[6] * mat.m_fData[9] + m_fData[7] * mat.m_fData[13] + m_fData[5] * mat.m_fData[5] + m_fData[4] * mat.m_fData[1];
+    res.m_fData[6] = m_fData[6] * mat.m_fData[10] + m_fData[7] * mat.m_fData[14] + m_fData[5] * mat.m_fData[6] + m_fData[4] * mat.m_fData[2];
+    res.m_fData[7] = m_fData[6] * mat.m_fData[11] + m_fData[7] * mat.m_fData[15] + m_fData[5] * mat.m_fData[7] + m_fData[4] * mat.m_fData[3];
+    res.m_fData[8] = m_fData[10] * mat.m_fData[8] + m_fData[11] * mat.m_fData[12] + m_fData[9] * mat.m_fData[4] + m_fData[8] * mat.m_fData[0];
+    res.m_fData[9] = m_fData[10] * mat.m_fData[9] + m_fData[11] * mat.m_fData[13] + m_fData[9] * mat.m_fData[5] + m_fData[8] * mat.m_fData[1];
+    res.m_fData[10] = m_fData[10] * mat.m_fData[10] + m_fData[11] * mat.m_fData[14] + m_fData[9] * mat.m_fData[6] + m_fData[8] * mat.m_fData[2];
+    res.m_fData[11] = m_fData[10] * mat.m_fData[11] + m_fData[11] * mat.m_fData[15] + m_fData[9] * mat.m_fData[7] + m_fData[8] * mat.m_fData[3];
+    res.m_fData[12] = m_fData[14] * mat.m_fData[8] + m_fData[15] * mat.m_fData[12] + m_fData[13] * mat.m_fData[4] + m_fData[12] * mat.m_fData[0];
+    res.m_fData[13] = m_fData[14] * mat.m_fData[9] + m_fData[15] * mat.m_fData[13] + m_fData[13] * mat.m_fData[5] + m_fData[12] * mat.m_fData[1];
+    res.m_fData[14] = m_fData[14] * mat.m_fData[10] + m_fData[15] * mat.m_fData[14] + m_fData[13] * mat.m_fData[6] + m_fData[12] * mat.m_fData[2];
+    res.m_fData[15] = m_fData[14] * mat.m_fData[11] + m_fData[15] * mat.m_fData[15] + m_fData[13] * mat.m_fData[7] + m_fData[12] * mat.m_fData[3];
+    return res;
+}
+
+void __stdcall S_matrix::SetDir(S_vector const& dir)
+{
+    float v3; // st7
+    float v4; // st7
+    float v5; // st7
+    float v6; // st7
+    float v7; // st7
+    float v8; // st6
+    float v9; // st6
+    float v10; // st7
+    float v11; // st6
+    float v17; // [esp+10h] [ebp-10h]
+    float thisb; // [esp+24h] [ebp+4h]
+    float thisc; // [esp+24h] [ebp+4h]
+    float thisd; // [esp+24h] [ebp+4h]
+
+    Identity();
+
+    m_fData[8] = dir.x;
+    m_fData[9] = dir.y;
+    m_fData[10] = dir.z;
+
+    double dirMag2 = dir.Magnitude2();
+    if (fabs(dirMag2 - 1.0f) < 0.00000000999999993922529f)
+    {
+        m_fData[8] = dir.x;
+        m_fData[9] = dir.y;
+        m_fData[10] = dir.z;
+        goto LABEL_17;
+    }
+
+    if (dirMag2 >= 0.0000000099999999f)
+    {
+        v4 = 1.0f / sqrt(dirMag2);
+        m_fData[8] = v4 * dir.x;
+        m_fData[9] = v4 * dir.y;
+        v3 = v4 * dir.z;
+    LABEL_16:
+        m_fData[10] = v3;
+        goto LABEL_17;
+    }
+    
+    if (dir.x != 0.0f)
+    {
+        if (dir.x >= 0.0f)
+            m_fData[8] = 1.0f;
+        else
+            m_fData[8] = -1.0f;
+        goto LABEL_17;
+    }
+    
+    if (dir.z != 0.0f)
+    {
+        if (dir.z >= 0.0f)
+            v3 = 1.0f;
+        else
+            v3 = -1.0f;
+        goto LABEL_16;
+    }
+    
+    if (dir.y >= 0.0f)
+        m_fData[9] = 1.0f;
+    else
+        m_fData[9] = -1.0f;
+
+
+LABEL_17:
+    thisb = dir.z * dir.z + dir.x * dir.x;
+    if (thisb > 0.0000000099999999f)
+    {
+        if (fabs(thisb - 1.0f) >= 0.00000000999999993922529f)
+        {
+            v6 = 1.0f / sqrt(thisb);
+            m_fData[0] = v6 * dir.z;
+            v5 = v6 * dir.x;
+        }
+        else
+        {
+            m_fData[0] = dir.z;
+            v5 = dir.x;
+        }
+        m_fData[2] = -v5;
+    }
+    if (fabs(dir.z) + fabs(dir.x) > 0.00000000999999993922529f)
+    {
+        v7 = dir.z;
+        v8 = -dir.x;
+        m_fData[1] = 0;
+        v17 = v8;
+        m_fData[0] = v7;
+        m_fData[2] = v17;
+        v9 = v17 * v17 + v7 * v7;
+        thisc = v9;
+        if (fabs(v9 - 1.0f) < 0.00000000999999993922529f)
+        {
+            m_fData[0] = v7;
+            m_fData[1] = 0.0f;
+            m_fData[2] = v17;
+            goto LABEL_37;
+        }
+        if (thisc >= 0.0000000099999999f)
+        {
+            v11 = 1.0f / sqrt(thisc);
+            thisd = v11;
+            m_fData[0] = v11 * v7;
+            m_fData[1] = thisd * 0.0f;
+            v10 = v17 * thisd;
+        }
+        else
+        {
+            if (v7 != 0.0f)
+            {
+                if (v7 >= 0.0f)
+                    m_fData[0] = 1.0f;
+                else
+                    m_fData[0] = -1.0f;
+                goto LABEL_37;
+            }
+            if (v17 == 0.0f)
+            {
+                m_fData[1] = 1.0f;
+                goto LABEL_37;
+            }
+            if (v17 >= 0.0f)
+                v10 = 1.0f;
+            else
+                v10 = -1.0f;
+        }
+        m_fData[2] = v10;
+    }
+LABEL_37:
+    m_fData[4] = -(m_fData[1] * dir.z - m_fData[2] * dir.y);
+    m_fData[5] = -(m_fData[2] * dir.x - m_fData[0] * dir.z );
+    m_fData[6] = -(m_fData[0] * dir.y - m_fData[1] * dir.x);
+}
+
+void __stdcall S_matrix::SetDir3(S_vector const& v1, S_vector const& v2)
+{
+
+}
+
+void __stdcall S_matrix::SetDir(S_vector const& v1, S_vector const& v2)
+{
+    S_matrix::SetDir3(v1, v2);
+    m_fData[3] = 0.0f;
+    m_fData[7] = 0.0f;
+    m_fData[11] = 0.0f;
+    m_fData[12] = 0.0f;
+    m_fData[13] = 0.0f;
+    m_fData[14] = 0.0f;
+    m_fData[15] = 1.0f;
+}
+
+void __stdcall S_matrix::SetRot3(S_quat const& rot)
+{
+    if (fabs(rot.w) < 0.9999999900000001)
+    {
+        float v3 = rot.x + rot.x;
+        float v4 = rot.y + rot.y;
+        float v14 = rot.z + rot.z;
+        float v13 = (rot.x + rot.x) * rot.x;
+        float v7 = v4 * rot.x;
+        float v9 = v14 * rot.x;
+        float v12 = v4 * rot.y;
+        float v11 = v14 * rot.y;
+        float v8 = v14 * rot.z;
+        float v10 = v3 * rot.w;
+        float v5 = v4 * rot.w;
+        float v6 = v14 * rot.w;
+        m_fData[0] = 1.0f - (v8 + v12);
+        m_fData[1] = v7 - v6;
+        m_fData[2] = v5 + v9;
+        m_fData[4] = v6 + v7;
+        m_fData[5] = 1.0f - (v8 + v13);
+        m_fData[6] = v11 - v10;
+        m_fData[8] = v9 - v5;
+        m_fData[9] = v10 + v11;
+        m_fData[10] = 1.0f - (v12 + v13);
+    }
+    else
+    {   
+        m_fData[0] = 1.0f;
+        m_fData[1] = 0.0f;
+        m_fData[2] = 0.0f;
+        m_fData[4] = 0.0f;
+        m_fData[5] = 1.0f;
+        m_fData[6] = 0.0f;
+        m_fData[8] = 0.0f;
+        m_fData[9] = 0.0f;
+        m_fData[10] = 1.0f;
+    }
+}
+
+void __stdcall S_matrix::SetRot(S_quat const& rot)
+{
+    S_matrix::SetRot3(rot);
+    m_fData[3] = 0.0f;
+    m_fData[7] = 0.0f;
+    m_fData[11] = 0.0f;
+    m_fData[12] = 0.0f;
+    m_fData[13] = 0.0f;
+    m_fData[14] = 0.0f;
+    m_fData[15] = 1.0f;
+}
+
+void __stdcall S_matrix::SetRot(S_matrix const& mat)
+{
+    m_fData[0] = mat.m_fData[0];
+    m_fData[1] = mat.m_fData[1];
+    m_fData[2] = mat.m_fData[2];
+    m_fData[4] = mat.m_fData[4];
+    m_fData[5] = mat.m_fData[5];
+    m_fData[6] = mat.m_fData[6];
+    m_fData[8] = mat.m_fData[8];
+    m_fData[9] = mat.m_fData[9];
+    m_fData[10] = mat.m_fData[10];
+
+    float vMag2 = m_fData[0] * m_fData[0] + m_fData[4] * m_fData[4] + m_fData[8] * m_fData[8];
+    if (fabs(vMag2 - 1.0f) > 0.00000000999999993922529f)
+    {
+        float invMag = 1.0f / sqrt(vMag2);
+        m_fData[0] = invMag * m_fData[0];
+        m_fData[4] = invMag * m_fData[4];
+        m_fData[8] = invMag * m_fData[8];
+    }
+
+    vMag2 = m_fData[1] * m_fData[1] + m_fData[5] * m_fData[5] + m_fData[9] * m_fData[9];
+    if (fabs(vMag2 - 1.0f) > 0.00000000999999993922529f)
+    {
+        float invMag = 1.0f / sqrt(vMag2);
+        m_fData[1] = invMag * m_fData[1];
+        m_fData[5] = invMag * m_fData[5];
+        m_fData[9] = invMag * m_fData[9];
+    }
+
+    vMag2 = m_fData[2] * m_fData[2] + m_fData[6] * m_fData[6] + m_fData[10] * m_fData[10];
+    if (fabs(vMag2 - 1.0f) > 0.00000000999999993922529f)
+    {
+        float invMag = 1.0f / sqrt(vMag2);
+        m_fData[2] = invMag * m_fData[2];
+        m_fData[6] = invMag * m_fData[6];
+        m_fData[10] = invMag * m_fData[10];
+    }
+    
+    m_fData[3] = 0.0f;
+    m_fData[7] = 0.0f;
+    m_fData[11] = 0.0f;
+    m_fData[12] = 0.0f;
+    m_fData[13] = 0.0f;
+    m_fData[14] = 0.0f;
+    m_fData[15] = 1.0f;
+}
+
+S_vector __stdcall S_matrix::GetScale()
+{
+    float x = m_fData[0] * m_fData[0] + m_fData[1] * m_fData[1] + m_fData[2] * m_fData[2];
+    float y = m_fData[4] * m_fData[4] + m_fData[5] * m_fData[5] + m_fData[6] * m_fData[6];
+    float z = m_fData[8] * m_fData[8] + m_fData[9] * m_fData[9] + m_fData[10] * m_fData[10];
+    return S_vector(sqrt(x), sqrt(y), sqrt(z));
+}
+
+S_vector __stdcall S_matrix::GetScale2()
+{
+    S_vector ret;
+    ret.x = m_fData[0] * m_fData[0] + m_fData[1] * m_fData[1] + m_fData[2] * m_fData[2];
+    ret.y = m_fData[4] * m_fData[4] + m_fData[5] * m_fData[5] + m_fData[6] * m_fData[6];
+    ret.z = m_fData[8] * m_fData[8] + m_fData[9] * m_fData[9] + m_fData[10] * m_fData[10];
+    return ret;
+}
+
+double __stdcall S_matrix::GetUScale()
+{
+    float x = m_fData[0] * m_fData[0] + m_fData[1] * m_fData[1] + m_fData[2] * m_fData[2];
+    float y = m_fData[4] * m_fData[4] + m_fData[5] * m_fData[5] + m_fData[6] * m_fData[6];
+    float z = m_fData[8] * m_fData[8] + m_fData[9] * m_fData[9] + m_fData[10] * m_fData[10];
+    return (sqrt(x) + sqrt(y) + sqrt(z)) * 0.33333334f;
+}
+
+#pragma endregion
+
 void S_vector::InitHooks()
 {
     uint32_t engineHandle = (uint32_t)GetModuleHandle("LS3DF.dll");
@@ -388,7 +789,7 @@ void S_vector::InitHooks()
     //S_vector
     ReversibleHooks::Install("S_vector", "CosAngleTo", rebase(0x1002E710), &S_vector::CosAngleTo);
     ReversibleHooks::Install("S_vector", "AngleTo", rebase(0x1002E7A0), &S_vector::AngleTo);
-    ReversibleHooks::Install("S_vector", "RotateByMatrix", rebase(0x1002EA10), &S_vector::RotateByMatrix);
+    ReversibleHooks::Install("S_vector", "RotateByMatrix", rebase(0x1002CF40), &S_vector::RotateByMatrix);
     ReversibleHooks::Install("S_vector", "RotateByNormMatrix", rebase(0x1002EAB0), &S_vector::RotateByNormMatrix);
 
     //S_quat
@@ -399,4 +800,28 @@ void S_vector::InitHooks()
 
     ReversibleHooks::Install("S_quat", "Slerp", rebase(0x1002FEE0), &S_quat::Slerp);
     ReversibleHooks::Install("S_quat", "Normalize*", rebase(0x10030140), &S_quat::Normalize);
+
+    
+    //S_matrix
+    void(__stdcall S_matrix:: * SetDir_v1)(S_vector const& dir) = &S_matrix::SetDir;
+    void(__stdcall S_matrix:: * SetDir_v2)(S_vector const& v1, S_vector const& v2) = &S_matrix::SetDir;
+
+    void(__stdcall S_matrix:: * SetRot_q)(S_quat const& rot) = &S_matrix::SetRot;
+    void(__stdcall S_matrix:: * SetRot_m)(S_matrix const& mat) = &S_matrix::SetRot;
+
+    ReversibleHooks::Install("S_matrix", "Inverse", rebase(0x1002D0B0), &S_matrix::Inverse);
+    ReversibleHooks::Install("S_matrix", "RotateByMatrix*", rebase(0x1002CF40), &S_matrix::RotateByMatrix);
+    ReversibleHooks::Install("S_matrix", "operator*", rebase(0x1002D3A0), &S_matrix::operator*);
+    ReversibleHooks::Install("S_matrix", "operator*=", rebase(0x1002D220), &S_matrix::operator*=);
+    ReversibleHooks::Install("S_matrix", "Mul4X4", rebase(0x1002D520), &S_matrix::Mul4X4);
+    ReversibleHooks::Install("S_matrix", "SetDir(struct S_vector const &)", rebase(0x1002D9D0), SetDir_v1);
+    ReversibleHooks::Install("S_matrix", "SetDir3(struct S_vector const&, struct S_vector const&)", rebase(0x1002DCF0), &S_matrix::SetDir3);
+    ReversibleHooks::Install("S_matrix", "SetDir(struct S_vector const &, struct S_vector const &)", rebase(0x1002E030), SetDir_v2);
+
+    ReversibleHooks::Install("S_matrix", "SetRot3", rebase(0x1002E070), &S_matrix::SetRot3);
+    ReversibleHooks::Install("S_matrix", "SetRot_q", rebase(0x1002E1C0), SetRot_q);
+    ReversibleHooks::Install("S_matrix", "SetRot_m", rebase(0x1002E1F0), SetRot_m);
+    ReversibleHooks::Install("S_matrix", "GetScale", rebase(0x1002E3A0), &S_matrix::GetScale);
+    ReversibleHooks::Install("S_matrix", "GetScale2", rebase(0x1002E510), &S_matrix::GetScale2);
+    ReversibleHooks::Install("S_matrix", "GetUScale", rebase(0x1002E580), &S_matrix::GetUScale);
 }
