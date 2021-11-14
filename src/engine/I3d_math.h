@@ -1,5 +1,7 @@
 #pragma once
 struct S_matrix;
+struct S_quat;
+
 struct S_vector 
 {
     S_vector(float x, float y, float z);
@@ -32,6 +34,7 @@ struct S_vector
     double __stdcall AngleTo(S_vector const& vec);
 
     static void InitHooks();
+
     float x; 
     float y;
     float z;
@@ -39,6 +42,14 @@ struct S_vector
 
 struct S_quat
 {
+    S_matrix __stdcall RotationMatrix();
+    S_vector __stdcall GetDir();
+    S_quat __stdcall Slerp(S_quat const& quat, float t, bool unk);
+
+    void __stdcall Make(S_vector const& axis, float angle);
+    void __stdcall Make(S_matrix const& mat);
+    S_quat operator*(S_quat const& quat);
+    void __stdcall Normalize();
     float w;
     float x;
     float y;
