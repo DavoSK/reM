@@ -27,13 +27,11 @@ struct S_vector
     double Magnitude2() const;
     double Magniture() const;
     void SetNormalized(S_vector const& vec);
-    S_vector __stdcall RotateByMatrix(S_matrix const& mat);
-    S_vector __stdcall RotateByNormMatrix(S_matrix const& mat);
-    S_vector Cross(S_vector const& vec);
-    double __stdcall CosAngleTo(S_vector const& vec);
-    double __stdcall AngleTo(S_vector const& vec);
-
-    static void InitHooks();
+    S_vector    __stdcall RotateByMatrix(S_matrix const& mat);
+    S_vector    __stdcall RotateByNormMatrix(S_matrix const& mat);
+    S_vector    __stdcall Cross(S_vector const& vec);
+    double      __stdcall CosAngleTo(S_vector const& vec);
+    double      __stdcall AngleTo(S_vector const& vec);
 
     float x; 
     float y;
@@ -81,11 +79,16 @@ struct S_matrix
 
     union  
     {
-        float m_01, m_02, m_03, m_04,
-          m_11, m_12, m_13, m_14,
-          m_21, m_22, m_23, m_24;
+        float   m_01, m_02, m_03, m_04,
+                m_11, m_12, m_13, m_14,
+                m_21, m_22, m_23, m_24;
         float m_fData[16];
     };
 };
 
 static_assert(sizeof(S_matrix) == 0x40);
+
+namespace I3D_math
+{
+    void InitHooks();
+};

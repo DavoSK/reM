@@ -637,7 +637,133 @@ LABEL_37:
 
 void __stdcall S_matrix::SetDir3(S_vector const& v1, S_vector const& v2)
 {
+    long double v4; // st7
+    long double v5; // st7
+    double v6; // st7
+    float* v7; // eax
+    float* v8; // eax
+    int v9; // [esp+0h] [ebp-3Ch]
+    int v10; // [esp+0h] [ebp-3Ch]
+    int v11; // [esp+4h] [ebp-38h]
+    int v12; // [esp+4h] [ebp-38h]
+    int v13; // [esp+4h] [ebp-38h]
+    int v14; // [esp+4h] [ebp-38h]
+    int v15; // [esp+4h] [ebp-38h]
+    int v16; // [esp+4h] [ebp-38h]
+    int v17; // [esp+8h] [ebp-34h]
+    int v18; // [esp+8h] [ebp-34h]
+    int v19; // [esp+8h] [ebp-34h]
+    int v20; // [esp+8h] [ebp-34h]
+    int v21; // [esp+8h] [ebp-34h]
+    int v22; // [esp+8h] [ebp-34h]
+    int v23; // [esp+Ch] [ebp-30h]
+    int v24; // [esp+Ch] [ebp-30h]
+    int v25; // [esp+Ch] [ebp-30h]
+    int v26; // [esp+Ch] [ebp-30h]
+    float v27; // [esp+18h] [ebp-24h] BYREF
+    float v28; // [esp+1Ch] [ebp-20h]
+    float v29; // [esp+20h] [ebp-1Ch]
+    float v30; // [esp+24h] [ebp-18h] BYREF
+    float v31; // [esp+28h] [ebp-14h]
+    float v32; // [esp+2Ch] [ebp-10h]
+    float v33; // [esp+30h] [ebp-Ch] BYREF
+    float v34; // [esp+34h] [ebp-8h]
+    float v35; // [esp+38h] [ebp-4h]
+    float thisa; // [esp+40h] [ebp+4h]
 
+    *((_DWORD*)this + 8) = *(_DWORD*)a2;
+    *((_DWORD*)this + 9) = *((_DWORD*)a2 + 1);
+    *((_DWORD*)this + 10) = *((_DWORD*)a2 + 2);
+    thisa = *((float*)a2 + 2) * *((float*)a2 + 2)
+        + *((float*)a2 + 1) * *((float*)a2 + 1)
+        + *(float*)a2 * *(float*)a2;
+    if (fabs(thisa - 1.0) < 0.00000000999999993922529)
+    {
+        *((_DWORD*)this + 8) = *(_DWORD*)a2;
+        *((_DWORD*)this + 9) = *((_DWORD*)a2 + 1);
+        *((_DWORD*)this + 10) = *((_DWORD*)a2 + 2);
+        goto LABEL_17;
+    }
+    if (thisa >= 0.0000000099999999)
+    {
+        v5 = 1.0 / sqrt(thisa);
+        *((float*)this + 8) = v5 * *(float*)a2;
+        *((float*)this + 9) = v5 * *((float*)a2 + 1);
+        v4 = v5 * *((float*)a2 + 2);
+    LABEL_16:
+        *((float*)this + 10) = v4;
+        goto LABEL_17;
+    }
+    if (*(float*)a2 != 0.0)
+    {
+        if (*(float*)a2 >= 0.0)
+            *((float*)this + 8) = 1.0;
+        else
+            *((float*)this + 8) = -1.0;
+        goto LABEL_17;
+    }
+    if (*((float*)a2 + 2) != 0.0)
+    {
+        if (*((float*)a2 + 2) >= 0.0)
+            v4 = 1.0;
+        else
+            v4 = -1.0;
+        goto LABEL_16;
+    }
+    if (*((float*)a2 + 1) >= 0.0)
+        *((float*)this + 9) = 1.0;
+    else
+        *((float*)this + 9) = -1.0;
+LABEL_17:
+    v6 = *((float*)this + 10) * *((float*)a3 + 2)
+        + *((float*)this + 9) * *((float*)a3 + 1)
+        + *(float*)a3 * *((float*)this + 8);
+    *(float*)&v17 = v6 * *((float*)this + 10);
+    *(float*)&v11 = v6 * *((float*)this + 9);
+    *(float*)&v9 = v6 * *((float*)this + 8);
+    S_vector::S_vector(&v30, v9, v11, v17);
+    *(float*)&v18 = *((float*)a3 + 2) - v32;
+    *(float*)&v12 = *((float*)a3 + 1) - v31;
+    *(float*)&v10 = *(float*)a3 - v30;
+    S_vector::S_vector(&v27, v10, v12, v18);
+    if (v29 * v29 + v28 * v28 + v27 * v27 < 0.0000000099999999)
+    {
+        *(float*)&v23 = *((float*)this + 10) * *((float*)this + 10);
+        *(float*)&v19 = *((float*)this + 9) * *((float*)this + 10);
+        *(float*)&v13 = *((float*)this + 8) * *((float*)this + 10);
+        S_vector::S_vector(&v33, v13, v19, v23);
+        *(float*)&v24 = 1.0 - v35;
+        *(float*)&v20 = -v34;
+        *(float*)&v14 = -v33;
+        S_vector::S_vector(&v30, v14, v20, v24);
+        v27 = v30;
+        v28 = v31;
+        v29 = v32;
+        if (v30 * v30 + v31 * v31 + v32 * v32 < 0.0000000099999999)
+        {
+            *(float*)&v25 = *((float*)this + 10) * *((float*)this + 9);
+            *(float*)&v21 = *((float*)this + 9) * *((float*)this + 9);
+            *(float*)&v15 = *((float*)this + 8) * *((float*)this + 9);
+            S_vector::S_vector(&v33, v15, v21, v25);
+            *(float*)&v26 = -v35;
+            *(float*)&v22 = 1.0 - v34;
+            *(float*)&v16 = -v33;
+            S_vector::S_vector(&v30, v16, v22, v26);
+            v27 = v30;
+            v28 = v31;
+            v29 = v32;
+            if (sub_1000DDB0(&v27, &v27) < 0.0000000099999999)
+            {
+                v7 = (float*)S_vector::S_vector(&v33, 0, 1065353216, 0);
+                v27 = *v7;
+                v28 = v7[1];
+                v29 = v7[2];
+            }
+        }
+    }
+    S_vector::SetNormalized((float*)this + 4, &v27);
+    v8 = S_vector::Cross(&v27, &v33, (float*)a2);
+    S_vector::SetNormalized((float*)this, v8);
 }
 
 void __stdcall S_matrix::SetDir(S_vector const& v1, S_vector const& v2)
@@ -779,7 +905,7 @@ double __stdcall S_matrix::GetUScale()
 
 #pragma endregion
 
-void S_vector::InitHooks()
+void I3D_math::InitHooks()
 {
     uint32_t engineHandle = (uint32_t)GetModuleHandle("LS3DF.dll");
     auto rebase = [engineHandle](uint32_t adr) -> uint32_t {
@@ -801,7 +927,7 @@ void S_vector::InitHooks()
     ReversibleHooks::Install("S_quat", "Slerp", rebase(0x1002FEE0), &S_quat::Slerp);
     ReversibleHooks::Install("S_quat", "Normalize*", rebase(0x10030140), &S_quat::Normalize);
 
-    
+
     //S_matrix
     void(__stdcall S_matrix:: * SetDir_v1)(S_vector const& dir) = &S_matrix::SetDir;
     void(__stdcall S_matrix:: * SetDir_v2)(S_vector const& v1, S_vector const& v2) = &S_matrix::SetDir;
@@ -817,7 +943,6 @@ void S_vector::InitHooks()
     ReversibleHooks::Install("S_matrix", "SetDir(struct S_vector const &)", rebase(0x1002D9D0), SetDir_v1);
     ReversibleHooks::Install("S_matrix", "SetDir3(struct S_vector const&, struct S_vector const&)", rebase(0x1002DCF0), &S_matrix::SetDir3);
     ReversibleHooks::Install("S_matrix", "SetDir(struct S_vector const &, struct S_vector const &)", rebase(0x1002E030), SetDir_v2);
-
     ReversibleHooks::Install("S_matrix", "SetRot3", rebase(0x1002E070), &S_matrix::SetRot3);
     ReversibleHooks::Install("S_matrix", "SetRot_q", rebase(0x1002E1C0), SetRot_q);
     ReversibleHooks::Install("S_matrix", "SetRot_m", rebase(0x1002E1F0), SetRot_m);

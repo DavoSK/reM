@@ -1,5 +1,3 @@
-// MafiaVehicleRe.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #endif 
@@ -38,10 +36,11 @@ BOOL WINAPI DllMain(
     }
     return TRUE;  // Successful DLL_PROCESS_ATTACH.
 }
-;
+
 void Init() {
     AllocConsole();
     freopen("CONOUT$", "w", stdout);
-    S_vector::InitHooks();
+
+    I3D_math::InitHooks();
     C_Vehicle::InitHooks();
 }
