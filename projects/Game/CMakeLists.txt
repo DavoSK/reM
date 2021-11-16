@@ -3,6 +3,13 @@ add_library(Game SHARED
 	src/C_Vehicle.cpp
 )
 
+set_target_properties(
+    Game 
+    PROPERTIES
+        OUTPUT_NAME "Game"
+        SUFFIX ".asi"
+)
+
 include_directories(
 	src
 	../LS3DF/src
