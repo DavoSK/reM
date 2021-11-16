@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 project(reM)
 set(CMAKE_CXX_STANDARD 23)
 
-#NOTE(Zaklaus): setup build path
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
@@ -13,19 +12,10 @@ if(MSVC)
 endif()
 
 include_directories( 
-    src
-	src/engine
+	projects/plugin/src
+	projects
 )
 
-add_library(reM SHARED 
-	src/reversiblehooks/SSimpleReversibleHook.cpp
-	src/reversiblehooks/SVirtualReversibleHook.cpp
-	src/reversiblehooks/ReversibleHooks.cpp
-
-	src/engine/I3d_math.cpp
-
-	src/main.cpp
-	src/C_Vehicle.cpp
+add_subdirectory( 
+	projects
 )
-
-target_link_libraries(reM)

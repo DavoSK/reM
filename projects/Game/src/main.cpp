@@ -1,12 +1,8 @@
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-#endif 
-
 #include <iostream>
 #include <Windows.h>
 
 #include "C_Vehicle.h"
-#include "engine/I3d_math.h"
+#include "I3d_math.h"
 
 void Init();
 
