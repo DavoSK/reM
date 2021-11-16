@@ -7,26 +7,26 @@ struct S_vector
     S_vector(float x, float y, float z);
     S_vector();
 
-    S_vector operator*(float const& scalar);
-    void operator*=(float const& scalar);
-    void operator/=(float const& scalar);
+    S_vector    __thiscall operator*(float const& scalar);
+    void        __thiscall operator*=(float const& scalar);
+    void        __thiscall operator/=(float const& scalar);
 
-    S_vector operator*(S_vector const& vec);
-    void operator*=(S_vector const& vec);
+    S_vector    __thiscall operator*(S_vector const& vec);
+    void        __thiscall operator*=(S_vector const& vec);
 
-    S_vector operator*(S_matrix const& mat);
-    void operator*=(S_matrix const& mat);
+    S_vector    __thiscall operator*(S_matrix const& mat);
+    void        __thiscall operator*=(S_matrix const& mat);
 
-    S_vector operator+(S_vector const& vec);
-    void operator+=(S_vector const& vec);
+    S_vector    __thiscall operator+(S_vector const& vec);
+    void        __thiscall operator+=(S_vector const& vec);
 
-    double Dot(S_vector const& vec);
-    S_vector operator-(S_vector const& vec);
+    double      __thiscall Dot(S_vector const& vec);
+    S_vector    __thiscall operator-(S_vector const& vec);
 
-    void GetNormal(S_vector const& vec1, S_vector const& vec2, S_vector const& vec3);
-    double Magnitude2() const;
-    double Magniture() const;
-    void SetNormalized(S_vector const& vec);
+    void        __thiscall GetNormal(S_vector const& vec1, S_vector const& vec2, S_vector const& vec3);
+    double      __thiscall Magnitude2() const;
+    double      __thiscall Magniture() const;
+    void        __thiscall SetNormalized(S_vector const& vec);
     S_vector    __stdcall RotateByMatrix(S_matrix const& mat);
     S_vector    __stdcall RotateByNormMatrix(S_matrix const& mat);
     S_vector    __stdcall Cross(S_vector const& vec);
@@ -48,7 +48,7 @@ struct S_quat
 
     void        __stdcall Make(S_vector const& axis, float angle);
     void        __stdcall Make(S_matrix const& mat);
-    S_quat operator*(S_quat const& quat);
+    S_quat      __thiscall operator*(S_quat const& quat);
     void        __stdcall Normalize();
 
     float w;
