@@ -7,26 +7,26 @@ struct S_vector
     S_vector(float x, float y, float z);
     S_vector();
 
-    S_vector    __thiscall operator*(float const& scalar);
-    void        __thiscall operator*=(float const& scalar);
-    void        __thiscall operator/=(float const& scalar);
+    S_vector   __thiscall operator*(float const& scalar);
+    void       __thiscall operator*=(float const& scalar);
+    void       __thiscall operator/=(float const& scalar);
 
-    S_vector    __thiscall operator*(S_vector const& vec);
-    void        __thiscall operator*=(S_vector const& vec);
+    S_vector   __thiscall operator*(S_vector const& vec);
+    void       __thiscall operator*=(S_vector const& vec);
 
-    S_vector    __thiscall operator*(S_matrix const& mat);
-    void        __thiscall operator*=(S_matrix const& mat);
+    S_vector   __thiscall operator*(S_matrix const& mat);
+    void       __thiscall operator*=(S_matrix const& mat);
 
-    S_vector    __thiscall operator+(S_vector const& vec);
-    void        __thiscall operator+=(S_vector const& vec);
+    S_vector   __thiscall operator+(S_vector const& vec);
+    void       __thiscall operator+=(S_vector const& vec);
 
-    double      __thiscall Dot(S_vector const& vec);
-    S_vector    __thiscall operator-(S_vector const& vec);
+    double     __thiscall Dot(S_vector const& vec);
+    S_vector   __thiscall operator-(S_vector const& vec) const;
 
-    void        __thiscall GetNormal(S_vector const& vec1, S_vector const& vec2, S_vector const& vec3);
-    double      __thiscall Magnitude2() const;
-    double      __thiscall Magniture() const;
-    void        __thiscall SetNormalized(S_vector const& vec);
+    void       __thiscall GetNormal(S_vector const& vec1, S_vector const& vec2, S_vector const& vec3);
+    double     __thiscall Magnitude2() const;
+    double     __thiscall Magniture() const;
+    void       __thiscall SetNormalized(S_vector const& vec);
     S_vector    __stdcall RotateByMatrix(S_matrix const& mat);
     S_vector    __stdcall RotateByNormMatrix(S_matrix const& mat);
     S_vector    __stdcall Cross(S_vector const& vec);
@@ -44,11 +44,12 @@ struct S_quat
 {
     S_matrix    __stdcall RotationMatrix();
     S_vector    __stdcall GetDir();
-    S_quat      __stdcall Slerp(S_quat const& quat, float t, bool unk);
-
     void        __stdcall Make(S_vector const& axis, float angle);
     void        __stdcall Make(S_matrix const& mat);
-    S_quat      __thiscall operator*(S_quat const& quat);
+    S_quat     __thiscall operator*(S_quat const& quat);
+    void        __stdcall Inverse(S_vector& vec, float& val);
+    S_quat      __stdcall Slerp(S_quat const& quat, float t, bool unk);
+    S_quat&     __stdcall RotateByMatrix(S_matrix const& mat);
     void        __stdcall Normalize();
 
     float w;
@@ -67,6 +68,7 @@ struct S_matrix
     S_matrix    __stdcall operator*(S_matrix const& mat);
     void        __stdcall operator*=(S_matrix const& mat);
     S_matrix    __stdcall Mul4X4(S_matrix const& mat);
+    S_matrix&  __thiscall Make4X4(S_matrix const& mat1, S_matrix const& mat2);
     void        __stdcall SetDir(S_vector const& dir);
     void        __stdcall SetDir3(S_vector const& v1, S_vector const& v2);
     void        __stdcall SetDir(S_vector const& v1, S_vector const& v2);
