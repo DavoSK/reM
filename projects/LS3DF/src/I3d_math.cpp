@@ -1282,7 +1282,7 @@ double __stdcall S_matrix::GetUScale()
 void I3D_math::InitHooks()
 {
 	uint32_t engineHandle = (uint32_t)GetModuleHandle("LS3DF.dll");
-	auto rebase = [engineHandle](uint32_t adr) -> uint32_t {
+	auto rebase = [engineHandle](uint32_t adr) -> uint32_t { 
 		return (adr - 0x10000000) + engineHandle;
 	};
 
