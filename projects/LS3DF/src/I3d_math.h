@@ -25,7 +25,7 @@ struct S_vector
 
     void       __thiscall GetNormal(S_vector const& vec1, S_vector const& vec2, S_vector const& vec3);
     double     __thiscall Magnitude2() const;
-    double     __thiscall Magniture() const;
+    double     __thiscall Magnitude() const;
     void       __thiscall SetNormalized(S_vector const& vec);
     S_vector    __stdcall RotateByMatrix(S_matrix const& mat);
     S_vector    __stdcall RotateByNormMatrix(S_matrix const& mat);
@@ -49,7 +49,7 @@ struct S_quat
     S_quat     __thiscall operator*(S_quat const& quat);
     void        __stdcall Inverse(S_vector& vec, float& val);
     S_quat      __stdcall Slerp(S_quat const& quat, float t, bool unk);
-    S_quat&     __stdcall RotateByMatrix(S_matrix const& mat);
+    S_quat      __stdcall RotateByMatrix(S_matrix const& mat);
     void        __stdcall Normalize();
 
     float w;
