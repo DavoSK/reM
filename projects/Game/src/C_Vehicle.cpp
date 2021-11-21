@@ -29,45 +29,40 @@ S_vector* C_Vehicle::GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* of
 
 bool C_Vehicle::SetGear(int32_t gear)
 {
-    //printf("sizeof C_Vehicle: 0x%X\n", sizeof(C_Vehicle));
-    //printf("C_Vehicle::SetGear want: %d, current: %d  max: %d | m_iGear: 0x%X\n", gear, m_iGear, m_iMaxGear, offsetof(C_Vehicle, m_iGear));
-
     if (gear >= -1 && gear <= m_iMaxGear)
     {
         if (m_iGear == gear)
             return true;
 
-        // if (*(uint32_t*)(this + 0xB8) != 1 || gear >= 0)
-        // {
-        //     if ((*(uint32_t*)(this + 0xC68) & 0x4000) == 0
-        //         || (v3 = *(float*)(this + 0x1EC), v4 = v3 < 0.0, v5 = 0, v6 = v3 == 0.0, (v2 & 0x4100) != 0))
-        //     {
-        //         if ((*(uint32_t*)(this + 0xC68) & 0x4000) != 0)
-        //             return 1;
-        //     }
-        //     if (gear == -1
-        //         || (v8 = *(float*)(this + 4 * gear + 0x570)
-        //             / *(float*)(this + 4 * *(uint32_t*)(this + 0x55C) + 0x570)
-        //             * *(float*)(this + 0x548),
-        //             v9 = v8 < *(float*)(this + 0x1F9C),
-        //             v10 = 0,
-        //             v11 = v8 == *(float*)(this + 0x1F9C),
-        //             (v7 & 0x4100) != 0))
-        //     {
-        //         v12 = *(uint32_t*)(this + 0x5E8);
-        //         *(uint32_t*)(this + 0x494) = 0;
-        //         if ((v12 & 0x20) != 0)
-        //         {
-        //             v12 = v12 & 0xFC | 2;
-        //             *(uint32_t*)(this + 0x5E8) = v12;
-        //         }
+        uint32_t v1 = *(uint32_t*)((uint32_t)this + 0xB8);
+        if (v1 != 1 || gear >= 0)
+        {
+            float v3 = *(float*)((uint32_t)this + 0x1EC);
+            if ((*(uint32_t*)((uint32_t)this + 0xC68) & 0x4000) == 0 || v3 < 0.0f)
+            {
+                if ((*(uint32_t*)((uint32_t)this + 0xC68) & 0x4000) != 0)
+                    return true;
+            }
 
-        //         m_iGear = gear;
-        //         return 1;
-        //     }
-        // }
+            float v8 = m_GearRatios[gear] /
+                       m_GearRatios[m_iLastGear] * *(float*)((uint32_t)this + 0x548);
+
+            float v9 = *(float*)((uint32_t)this + 0x1F9C);
+            if (gear == -1 || v8 <= v9)
+            {
+                uint32_t v12 = *(uint32_t*)((uint32_t)this + 0x5E8);
+                *(uint32_t*)((uint32_t)this + 0x494) = 0;
+                if ((v12 & 0x20) != 0)
+                {
+                    v12 = v12 & 0xFC | 2;
+                    *(uint32_t*)((uint32_t)this + 0x5E8) = v12;
+                }
+
+                m_iGear = gear;
+                return 1;
+            }
+        }
     }
-
 
     return 0;
 }
@@ -147,22 +142,22 @@ bool C_Vehicle::SetFuel(float fuel)
     return true;
 }
 
-bool C_Vehicle::SetHandbrake(bool handbrake)
+bool C_Vehicle::SetHandbrake(bool doBrake)
 {
-    if (handbrake)
+    if (doBrake)
     {
-        float v2 = *(float*)((uint32_t)this + 0x4C8) + *(float*)((uint32_t)this + 0x3B8);
-        *(float*)((uint32_t)this + 0x3B8) = v2;
+        float val = m_fDeltaUpdateTime + m_fHandbrakeCurrent;
+        m_fHandbrakeCurrent = val;
 
-        if (v2 > *(float*)((uint32_t)this + 0x3B4))
-            *(uint32_t*)((uint32_t)this + 0x3B8) = *(uint32_t*)((uint32_t)this + 0x3B4);
+        if (val > m_fHandbrakeSpeedFactor)
+            m_fHandbrakeCurrent = m_fHandbrakeSpeedFactor;
         
-        *(float*)((uint32_t)this + 0x434) = *(float*)((uint32_t)this + 0x3B8) / *(float*)((uint32_t)this + 0x3B4) * *(float*)((uint32_t)this + 0x3B0);
+        m_fHandbrake = m_fHandbrakeCurrent / m_fHandbrakeSpeedFactor * m_fMaxHandbrakeForce;
     }
     else
     {
-        *(uint32_t*)((uint32_t)this + 0x434) = 0;
-        *(uint32_t*)((uint32_t)this + 0x3B8) = 0;
+        m_fHandbrake = 0.0f;
+        m_fHandbrakeCurrent = 0.0f;
     }
 
     return true;
@@ -184,7 +179,7 @@ bool C_Vehicle::EnableSounds(bool enable)
 
 void C_Vehicle::InitHooks()
 {
-    //ReversibleHooks::Install("C_Vehicle", "SetGear", 0x4CB070, &C_Vehicle::SetGear);
+    ReversibleHooks::Install("C_Vehicle", "SetGear", 0x4CB070, &C_Vehicle::SetGear);
     ReversibleHooks::Install("C_Vehicle", "GetWheelCamPos", 0x4C6010, &C_Vehicle::GetWheelCamPos);
     ReversibleHooks::Install("C_Vehicle", "SetSpeedLimit", 0x4CB6A0, &C_Vehicle::SetSpeedLimit);
     ReversibleHooks::Install("C_Vehicle", "SetClutch", 0x4CB460, &C_Vehicle::SetClutch);
