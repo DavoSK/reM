@@ -7,6 +7,7 @@ class C_Vehicle
 public:
 	S_vector* GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* pos);
 	bool SetGear(int32_t gear);
+	bool SetBrake(float brake);
 	bool SetSpeedLimit(float limit);
 	bool SetClutch(float clutch);
 	bool SetSteer(float steer);
@@ -32,9 +33,12 @@ private:
    S_vector m_aPosition;				//0x320	- 0x32C
    uint8_t _pad5[0x84];					//0x32C - 0x3B0
    float m_fMaxHandbrakeForce;			//0x3B0 - 0x3B4
-   float m_fHandbrakeSpeedFactor;		//0x3B4 - 0x3B8
+   float m_fHandbrakeMax;				//0x3B4 - 0x3B8
    float m_fHandbrakeCurrent;			//0x3B8 - 0x3BC
-   uint8_t _padxx[0x64];				//0x3BC - 0x420
+   uint8_t _padxx[0xC];					//0x3BC - 0x3C8
+   float m_fBrakeMax;					//0x3C8 - 0x3CC 
+   float m_fBrakeCurrent;				//0x3CC - 0x3D0
+   uint8_t _padx1[0x50];				//0x3D0 - 0x420
    S_vector m_aAngularVelocity;			//0x420 - 0x42C
    uint8_t _pad6[0x4];
    uint8_t m_bHorn;
@@ -44,7 +48,9 @@ private:
    uint8_t _pad10[0x6C];				//0x438	- 0x4A4
    float m_fSpeedLimit;					//0x4A4 - 0x4A8
    uint8_t m_bDontInterpolateSteering;	//0x4A8 - 0x4A9
-   uint8_t _pad11[0x1F];				//0x4A9 - 0x4C8
+   uint8_t _pad11x;						//0x4A9 - 0x4AA 
+   uint8_t m_bDontInterpolateBrake;		//0x4AA - 0x4AB
+   uint8_t _pad11[0x1D];				//0x4AB - 0x4C8
    float m_fDeltaUpdateTime;			//0x4C8 - 0x4CC
    uint8_t _pad12[0x74];				//0x4CC - 0x540
    float m_fAccelerating;				//0x540 - 0x544
@@ -58,7 +64,7 @@ private:
    int32_t m_iUnk1;						//0x56C - 0x570
    float m_GearRatios[4];				//0x570 - 0x57C
    uint8_t _pad15[0x38];				//0x57C - 0x5B8
-   float m_fBreakValue;					//0x5B8 - 0x5BC
+   float m_fBrake;						//0x5B8 - 0x5BC
    uint8_t _pad16[0x24];				//0x5BC - 0x5E0
    float m_fClutch;						//0x5E0 - 0x5E4
    uint8_t _pad17[0x2C];				//0x5E4 - 0x610

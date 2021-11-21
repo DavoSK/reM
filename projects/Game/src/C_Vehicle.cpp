@@ -67,6 +67,71 @@ bool C_Vehicle::SetGear(int32_t gear)
     return 0;
 }
 
+bool C_Vehicle::SetBrake(float brake)
+{
+    if (brake > 1.0f || brake < 0.0f || *(uint32_t*)((uint32_t)this + 0xB0) == 1)
+        return false;
+
+    if (!*(uint8_t*)((uint32_t)this + 0x4CC))
+    {
+        if ( m_bDontInterpolateBrake )
+        {
+            m_fBrake = brake;
+        }
+        else
+        {
+            m_fBrakeCurrent = m_fDeltaUpdateTime + m_fBrakeCurrent;
+              
+            if (m_fBrakeCurrent > m_fBrakeMax)
+                m_fBrakeCurrent = m_fBrakeMax;
+
+            m_fBrake = m_fBrakeCurrent / m_fBrakeMax * brake;
+        }
+
+        if (brake > 0.0f)
+        {
+            *(uint32_t*)((uint32_t)this + 0x3A8) = 0;
+            *(uint32_t*)((uint32_t)this + 0x3A4) = 0;
+            return true;
+        }
+        return true;
+    }
+
+    if (*(int*)((uint32_t)this + 0x55C) < 0)
+    {
+        float v25 = *(uint8_t*)((uint32_t)this + 0xC2C);
+        *(uint32_t*)((uint32_t)this + 0x3A4) = 0;
+        *(uint32_t*)((uint32_t)this + 0x3A8) = 0;
+        if (v25)
+            *(float*)((uint32_t)this + 0x3A4) = brake;
+        return true;
+    }
+
+    if (m_bDontInterpolateBrake)
+    {
+        m_fBrake = brake;
+    }
+    else
+    {
+        m_fBrakeCurrent = m_fDeltaUpdateTime + m_fBrakeCurrent;
+        
+        if (m_fBrakeCurrent > m_fBrakeMax)
+            m_fBrakeCurrent = m_fBrakeMax;
+
+        m_fBrake = m_fBrakeCurrent / m_fBrakeMax * brake;
+    }
+
+ 
+    if (brake > 0.0f)
+    {
+        *(uint32_t*)((uint32_t)this + 0x3A8) = 0;
+        *(uint32_t*)((uint32_t)this + 0x3A4) = 0;
+    }
+
+    *(uint32_t*)((uint32_t)this + 0x1A4) &= ~0x1000000u;
+    return true;
+}
+
 bool C_Vehicle::SetSpeedLimit(float limit)
 {
     m_fSpeedLimit = limit;
@@ -149,10 +214,10 @@ bool C_Vehicle::SetHandbrake(bool doBrake)
         float val = m_fDeltaUpdateTime + m_fHandbrakeCurrent;
         m_fHandbrakeCurrent = val;
 
-        if (val > m_fHandbrakeSpeedFactor)
-            m_fHandbrakeCurrent = m_fHandbrakeSpeedFactor;
+        if (val > m_fHandbrakeMax)
+            m_fHandbrakeCurrent = m_fHandbrakeMax;
         
-        m_fHandbrake = m_fHandbrakeCurrent / m_fHandbrakeSpeedFactor * m_fMaxHandbrakeForce;
+        m_fHandbrake = m_fHandbrakeCurrent / m_fHandbrakeMax * m_fMaxHandbrakeForce;
     }
     else
     {
@@ -179,6 +244,7 @@ bool C_Vehicle::EnableSounds(bool enable)
 
 void C_Vehicle::InitHooks()
 {
+    ReversibleHooks::Install("C_Vehicle", "SetBrake", 0x4CB2D0, &C_Vehicle::SetBrake);
     ReversibleHooks::Install("C_Vehicle", "SetGear", 0x4CB070, &C_Vehicle::SetGear);
     ReversibleHooks::Install("C_Vehicle", "GetWheelCamPos", 0x4C6010, &C_Vehicle::GetWheelCamPos);
     ReversibleHooks::Install("C_Vehicle", "SetSpeedLimit", 0x4CB6A0, &C_Vehicle::SetSpeedLimit);
