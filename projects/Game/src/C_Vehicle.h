@@ -6,6 +6,9 @@ class C_Vehicle
 {
 public:
 	S_vector* GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* pos);
+	bool Engine(float a1, float a2, float a3);
+	bool Move(float a1, float a2, float a3, float a4, float a5, float a6);
+
 	bool SetGear(int32_t gear);
 	bool SetBrake(float brake);
 	bool SetSpeedLimit(float limit);
@@ -63,7 +66,9 @@ private:
    int32_t m_iMaxGear;					//0x568 - 0x56C
    int32_t m_iUnk1;						//0x56C - 0x570
    float m_GearRatios[4];				//0x570 - 0x57C
-   uint8_t _pad15[0x38];				//0x57C - 0x5B8
+   uint8_t _pad15[0x1C];				//0x57C - 0x59C
+   float m_fSpeed;						//0x59C - 0x5A0
+   uint8_t _pad167[0x18];				//0x5A0 - 0x5B8
    float m_fBrake;						//0x5B8 - 0x5BC
    uint8_t _pad16[0x24];				//0x5BC - 0x5E0
    float m_fClutch;						//0x5E0 - 0x5E4
