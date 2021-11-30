@@ -29,15 +29,18 @@ S_vector* C_Vehicle::GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* of
 
 bool C_Vehicle::Engine(float deltaTime, float a3, float a4)
 {
-    constexpr auto test = offsetof(C_Vehicle, m_fSteeringLinearity);
+    constexpr auto test = offsetof(C_Vehicle, m_iWheelCnt);
 
+    //NOTE: this looks like its not vector  
+    //just used as container for 3 floats
     S_vector v42(0.0f, 0.0f, 0.0f);
     if (m_fSpeed > 0.0f)
     {
         float speed2 = (m_fSpeed * m_fSpeed);
-        v42.z = *(float*)((uint32_t)this + 0x53C) * *(float*)((uint32_t)this + 0x538) * speed2 * 0.64999998f;
-        v42.y = *(float*)((uint32_t)this + 0x3D4) * *(float*)((uint32_t)this + 0x3D0) * speed2 * 0.64999998f;
-        v42.x = *(float*)((uint32_t)this + 0x3DC) * *(float*)((uint32_t)this + 0x3D8) * speed2 * 0.64999998f;
+        const float magic = 0.64999998f;
+        v42.z = *(float*)((uint32_t)this + 0x53C) * *(float*)((uint32_t)this + 0x538) * speed2 * magic;
+        v42.y = *(float*)((uint32_t)this + 0x3D4) * *(float*)((uint32_t)this + 0x3D0) * speed2 * magic;
+        v42.x = *(float*)((uint32_t)this + 0x3DC) * *(float*)((uint32_t)this + 0x3D8) * speed2 * magic;
     }
 
     if (m_fBrake == 0.0f)
@@ -54,38 +57,29 @@ bool C_Vehicle::Engine(float deltaTime, float a3, float a4)
     m_aMovUp = m_aUp;
     m_aMovRight = m_aRight;
 
-    bool singleMove = deltaTime <= *(float*)((uint32_t)this + 0xC24);
-    if (singleMove)
+    bool isSingleMove = deltaTime <= m_fTimePerMoveFrame;
+    if (isSingleMove)
     {
-        *(uint16_t*)((uint32_t)this + 0x64) = 1;
-        *(uint16_t*)((uint32_t)this + 0x66) = 0;
+        m_iMoveFramesCnt = 1;
+        m_iCurrentMoveFrame = 0;
         this->Move(deltaTime, v42.z, v42.y, v42.x, a3, a4);
     }
     else
     {
-        uint32_t v20 = (uint32_t)(deltaTime / *(float*)((uint32_t)this + 0xC24)) + 1;
-        *(uint16_t*)((uint32_t)this + 0x64) = v20;
-        *(uint16_t*)((uint32_t)this + 0x66) = 0;
-        
-        uint32_t moveCnt = 0;
-        
-        if (v20)
+        m_iMoveFramesCnt = (uint16_t)(deltaTime / m_fTimePerMoveFrame) + 1;
+        m_iCurrentMoveFrame = 0;
+        float deltaTimePerMove = deltaTime / m_iMoveFramesCnt;
+        for (uint16_t i = 0; i < m_iMoveFramesCnt; i++)
         {
-            float v45 = deltaTime / (double)v20;
-
-            do
-            {
-                this->Move(v45, v42.z, v42.y, v42.x, a3, a4);
-                ++moveCnt;
-            }   while (moveCnt < *(uint16_t*)((uint32_t)this + 0x64));
+            this->Move(deltaTimePerMove, v42.z, v42.y, v42.x, a3, a4);
         }
     }
     
-    uint32_t v23 = (uint32_t)this;
-    for (uint32_t i = *(uint32_t*)((uint32_t)this + 0x4C4); i; *(float*)((uint32_t)v23 + 0x1C8) = *(float*)((uint32_t)v23 + 0x1C8) + *(float*)((uint32_t)this + 0x5B4))
+    //NOTE: adds something to every wheel
+    for (uint32_t i = 0; i < m_iWheelCnt; i++)
     {
-        --i;
-        v23 = *(uint32_t*)(*(uint32_t*)((uint32_t)this + 0xC38) + 4 * i);
+        uint32_t currentWheel = (uint32_t)m_pWheels[i];
+        *(float*)((uint32_t)currentWheel + 0x1C8) = *(float*)((uint32_t)currentWheel + 0x1C8) + *(float*)((uint32_t)this + 0x5B4);
     }
     
     float v24 = vForward.z * m_aUp.y - vForward.y * m_aUp.z;
@@ -95,34 +89,35 @@ bool C_Vehicle::Engine(float deltaTime, float a3, float a4)
     vForward.y = v26 * m_aUp.x - v24 * m_aUp.z;
     vForward.z = v24 * m_aUp.y - v25 * m_aUp.x;
     
-    float angle = vForward.AngleTo(*(const S_vector*)((uint32_t)this + 0xC3C));
+    float angle = vForward.AngleTo(m_aForward);
+  
     *(float*)((uint32_t)this + 0x350) = angle;
 
-    if (singleMove)
+    if (isSingleMove)
         *(float*)((uint32_t)this + 0x350) = *(float*)((uint32_t)this + 0x5B4) / angle;
 
     float v34 = *(float*)((uint32_t)this + 0x350);
     if (v34 <= 0.0f && *(float*)((uint32_t)this + 0x350) < (double)*(float*)((uint32_t)this + 0x354))
     {
-        uint32_t v38 = *(uint32_t*)((uint32_t)this + 0x4C4);
-        if (v38)
+        int wheelCnt = m_iWheelCnt;
+        if (wheelCnt)
         {
-            uint32_t v39 = *(uint32_t*)((uint32_t)this + 0xC38) + 4 * v38;
-            while (1)
+            int32_t i = m_iWheelCnt;
+            while (true)
             {
-                uint32_t v40 = *(uint32_t*)(v39 - 4);
-                v39 -= 4;
-                --v38;
-                if ((*(uint8_t*)(v40 + 0x120) & 0x90) != 0)
+                if ((*(uint8_t*)((uint32_t)m_pWheels[i - 1] + 0x120) & 0x90) != 0)
                     break;
-                if (!v38)
-                    goto LABEL_21;
+               
+                if (!(--i))
+                {
+                    *(float*)((uint32_t)this + 0x354) = *(float*)((uint32_t)this + 0x350);
+                    break;
+                }
             }
         }
         else
         {
-        LABEL_21:
-            *(uint32_t*)((uint32_t)this + 0x354) = *(uint32_t*)((uint32_t)this + 0x350);
+            *(float*)((uint32_t)this + 0x354) = *(float*)((uint32_t)this + 0x350);
         }
     }
 
@@ -246,7 +241,7 @@ bool C_Vehicle::SetBrake(float brake)
         *(uint32_t*)((uint32_t)this + 0x3A4) = 0;
     }
 
-    *(uint32_t*)((uint32_t)this + 0x1A4) &= ~0x1000000u;
+    m_uFlags &= ~0x1000000u;
     return true;
 }
 

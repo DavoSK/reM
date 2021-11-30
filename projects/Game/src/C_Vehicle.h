@@ -8,7 +8,6 @@ public:
 	S_vector* GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* pos);
 	bool Engine(float a1, float a2, float a3);
 	bool Move(float a1, float a2, float a3, float a4, float a5, float a6);
-
 	bool SetGear(int32_t gear);
 	bool SetBrake(float brake);
 	bool SetSpeedLimit(float limit);
@@ -19,18 +18,21 @@ public:
 	bool SetFuel(float fuel);
 	bool SetHandbrake(bool doBrake);
 	bool EnableSounds(bool enable);
-	
 	static void InitHooks();
 private:
-   uint8_t _pad0[0x68];
-   S_vector m_aMovPosition;				//0x68	- 0x74
-   S_vector m_aMovForward;				//0x74	- 0x80
-   S_vector m_aMovUp;					//0x80	- 0x8C
-   S_vector m_aMovRight;				//0x8C	- 0x98
+   uint8_t _pad0[0x64];
+   uint16_t	m_iMoveFramesCnt; 			//0x64  -  0x66
+   uint16_t m_iCurrentMoveFrame;		//0x66  -  0x68
+   S_vector m_aMovPosition;				//0x68	-  0x74
+   S_vector m_aMovForward;				//0x74	-  0x80
+   S_vector m_aMovUp;					//0x80	-  0x8C
+   S_vector m_aMovRight;				//0x8C	-  0x98
    uint8_t _pad003[0x100];				
    float m_fSteeringLinearity;			//0x198 - 0x19C
    float m_fClutchLinearity;			//0x19C - 0x1A0
-   uint8_t _pad00[0x14];
+   uint8_t _pad0001[0x4];				//0x1A0 - 0x1A4
+   uint32_t m_uFlags;					//0x1A4 - 0x1A8
+   uint8_t _pad00[0xC];
    float m_fEngineHealth;
    uint8_t _pad1[0x34];
    float m_fHealth;
@@ -58,7 +60,8 @@ private:
    uint8_t m_bDontInterpolateSteering;	//0x4A8 - 0x4A9
    uint8_t _pad11x;						//0x4A9 - 0x4AA 
    uint8_t m_bDontInterpolateBrake;		//0x4AA - 0x4AB
-   uint8_t _pad11[0x1D];				//0x4AB - 0x4C8
+   uint8_t _pad11[0x19];				//0x4AB - 0x4C4
+   uint32_t m_iWheelCnt;				//0x4C4 - 0x4C8
    float m_fDeltaUpdateTime;			//0x4C8 - 0x4CC
    uint8_t _pad12[0x74];				//0x4CC - 0x540
    float m_fAccelerating;				//0x540 - 0x544
@@ -81,7 +84,9 @@ private:
    float m_fMaxSteerAngle;				//0x610 - 0x614
    uint8_t _pad161[0x10];				//0x614 - 0x624
    float m_fSteerAngle;					//0x624 - 0x628
-   uint8_t _pad18[0x607];				
+   uint8_t _pad18[0x5FC];
+   float m_fTimePerMoveFrame;			//0xC24 - 0xC28
+   uint8_t _pad21[7];
    uint8_t m_bEngineOn;					//0xC2F - 0xC30
    float m_fFuel;						//0xC30 - 0xC34
    uint8_t _pad19[0x4];					//0xC34 - 0xC38
