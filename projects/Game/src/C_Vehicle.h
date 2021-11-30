@@ -22,7 +22,12 @@ public:
 	
 	static void InitHooks();
 private:
-   uint8_t _pad0[0x198];
+   uint8_t _pad0[0x68];
+   S_vector m_aMovPosition;				//0x68	- 0x74
+   S_vector m_aMovForward;				//0x74	- 0x80
+   S_vector m_aMovUp;					//0x80	- 0x8C
+   S_vector m_aMovRight;				//0x8C	- 0x98
+   uint8_t _pad003[0x100];				
    float m_fSteeringLinearity;			//0x198 - 0x19C
    float m_fClutchLinearity;			//0x19C - 0x1A0
    uint8_t _pad00[0x14];
