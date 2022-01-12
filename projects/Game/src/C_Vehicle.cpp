@@ -29,7 +29,8 @@ S_vector* C_Vehicle::GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* of
 
 bool C_Vehicle::Engine(float deltaTime, float a3, float a4)
 {
-    constexpr auto test = offsetof(C_Vehicle, m_iWheelCnt);
+    //m_pCallbackLP = (void*)kokot;
+    constexpr auto test = offsetof(C_Vehicle, m_pHornStopSound);
 
     //NOTE: this looks like its not vector  
     //just used as container for 3 floats
@@ -355,8 +356,94 @@ bool C_Vehicle::EnableSounds(bool enable)
     return result;
 }
 
+int C_Vehicle::LockVehicle(bool doLock)
+{     
+    if (doLock)
+        m_iLockCount++;
+    else
+        m_iLockCount--;
+
+    if (m_iLockCount <= 0)
+        m_uFlags = m_uFlags & 0xEFFFFFFF;
+    else
+        m_uFlags = m_uFlags | 0x10000000;
+
+    return m_iLockCount;
+}
+
+int C_Vehicle::HornSnd(bool doHorn)
+{
+    if (doHorn)
+    {
+        void* m_pMuteSound = nullptr;
+
+        //NOTE: whats this ?
+        if (*((uint8_t*)(uint32_t)this + 0x491))
+        {
+            if (m_pHornSound != nullptr)
+            {
+                //NOTE: I3D_Sound::IsPlaying() -> bool
+                bool isPlaying = (*(bool(__stdcall**)(void*, int))(*(uint32_t*)(uint32_t)m_pHornSound + 0x54))(m_pHornSound, 0);
+                if (!isPlaying)
+                {
+                    //NOTE: I3D_Sound::SetOn(1, 0);
+                    (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pHornSound + 0x24))(m_pHornSound, 1);
+
+                    //NOTE: I3D_Sound::SetVolume(1.0f);
+                    return (*(int(__stdcall**)(void*, float))(*(uint32_t*)(uint32_t)m_pHornSound + 0x68))(
+                        m_pHornSound,
+                        1.0f);
+                }
+            }
+            
+            m_pMuteSound = m_pHornStopSound;
+        }
+        else
+        {
+            if (m_pHornStopSound != nullptr)
+            {
+                //NOTE: I3D_Sound::IsPlaying() -> bool
+                bool isPlaying = (*(bool(__stdcall**)(void*, int))(*(uint32_t*)(uint32_t)m_pHornStopSound + 0x54))(m_pHornStopSound, 0);
+                if (!isPlaying)
+                {
+                    //NOTE: I3D_Sound::SetOn(1, 0);
+                    (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pHornStopSound + 0x24))(m_pHornStopSound, 1);
+
+                    //NOTE: I3D_Sound::SetVolume(1.0f);
+                    return (*(int(__stdcall**)(void*, float))(*(uint32_t*)(uint32_t)m_pHornStopSound + 0x68))(
+                        m_pHornStopSound,
+                        1.0f);
+                }
+            }
+            
+            m_pMuteSound = m_pHornSound;
+        }
+
+        if (m_pMuteSound)
+        {
+            return (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pMuteSound + 0x24))(m_pMuteSound, 0);
+        }
+    }
+    else
+    {
+        if (m_pHornSound != nullptr) 
+        {
+            return (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pHornSound + 0x24))(m_pHornSound, 0);
+        }
+
+        if (m_pHornStopSound != nullptr) 
+        {
+            return (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pHornStopSound + 0x24))(m_pHornStopSound, 0);
+        }
+    }
+
+    return 0;
+}
+
 void C_Vehicle::InitHooks()
 {
+    ReversibleHooks::Install("C_Vehicle", "HornSnd", 0x4EDA40, &C_Vehicle::HornSnd);
+    ReversibleHooks::Install("C_Vehicle", "LockVehicle", 0x4CD600, &C_Vehicle::LockVehicle);
     ReversibleHooks::Install("C_Vehicle", "Engine", 0x4E1CE0, &C_Vehicle::Engine);
     ReversibleHooks::Install("C_Vehicle", "SetBrake", 0x4CB2D0, &C_Vehicle::SetBrake);
     ReversibleHooks::Install("C_Vehicle", "SetGear", 0x4CB070, &C_Vehicle::SetGear);

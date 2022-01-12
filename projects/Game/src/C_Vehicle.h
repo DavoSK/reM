@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <I3d_math.h>
+#pragma pack(push,1)
 
 class C_Vehicle
 {
@@ -18,86 +19,123 @@ public:
 	bool SetFuel(float fuel);
 	bool SetHandbrake(bool doBrake);
 	bool EnableSounds(bool enable);
+	int LockVehicle(bool doLock);
+	int HornSnd(bool doHorn);
 	static void InitHooks();
 private:
-   uint8_t _pad0[0x64];
-   uint16_t	m_iMoveFramesCnt; 			//0x64  -  0x66
-   uint16_t m_iCurrentMoveFrame;		//0x66  -  0x68
-   S_vector m_aMovPosition;				//0x68	-  0x74
-   S_vector m_aMovForward;				//0x74	-  0x80
-   S_vector m_aMovUp;					//0x80	-  0x8C
-   S_vector m_aMovRight;				//0x8C	-  0x98
-   uint8_t _pad003[0x100];				
-   float m_fSteeringLinearity;			//0x198 - 0x19C
-   float m_fClutchLinearity;			//0x19C - 0x1A0
-   uint8_t _pad0001[0x4];				//0x1A0 - 0x1A4
-   uint32_t m_uFlags;					//0x1A4 - 0x1A8
-   uint8_t _pad00[0xC];
-   float m_fEngineHealth;
-   uint8_t _pad1[0x34];
-   float m_fHealth;
-   uint8_t _pad2[0x28];
-   void* m_pFirstMesh;
-   void* m_pLastMesh;
-   uint8_t _pad4[0x100];
-   S_vector m_aPosition;				//0x320	- 0x32C
-   uint8_t _pad5[0x84];					//0x32C - 0x3B0
-   float m_fMaxHandbrakeForce;			//0x3B0 - 0x3B4
-   float m_fHandbrakeMax;				//0x3B4 - 0x3B8
-   float m_fHandbrakeCurrent;			//0x3B8 - 0x3BC
-   uint8_t _padxx[0xC];					//0x3BC - 0x3C8
-   float m_fBrakeMax;					//0x3C8 - 0x3CC 
-   float m_fBrakeCurrent;				//0x3CC - 0x3D0
-   uint8_t _padx1[0x50];				//0x3D0 - 0x420
-   S_vector m_aAngularVelocity;			//0x420 - 0x42C
-   uint8_t _pad6[0x4];
-   uint8_t m_bHorn;
-   uint8_t m_bSiren;
-   uint8_t m_SoundEnabled;
-   float m_fHandbrake;					//0x434 - 0x438
-   uint8_t _pad10[0x6C];				//0x438	- 0x4A4
-   float m_fSpeedLimit;					//0x4A4 - 0x4A8
-   uint8_t m_bDontInterpolateSteering;	//0x4A8 - 0x4A9
-   uint8_t _pad11x;						//0x4A9 - 0x4AA 
-   uint8_t m_bDontInterpolateBrake;		//0x4AA - 0x4AB
-   uint8_t _pad11[0x19];				//0x4AB - 0x4C4
-   uint32_t m_iWheelCnt;				//0x4C4 - 0x4C8
-   float m_fDeltaUpdateTime;			//0x4C8 - 0x4CC
-   uint8_t _pad12[0x74];				//0x4CC - 0x540
-   float m_fAccelerating;				//0x540 - 0x544
-   uint8_t _pad13[0xC];					//0x544 - 0x54C
-   float m_fEngineRpm;					//0x550	- 0x554
-   uint8_t _pad14[0x8];					//0x554 - 0x55C
-   int32_t m_iLastGear;					//0x55C - 0x560
-   int32_t m_iGear;						//0x560 - 0x564
-   uint8_t _m_pad23[4];					//0x564 - 0x568
-   int32_t m_iMaxGear;					//0x568 - 0x56C
-   int32_t m_iUnk1;						//0x56C - 0x570
-   float m_GearRatios[4];				//0x570 - 0x57C
-   uint8_t _pad15[0x1C];				//0x57C - 0x59C
-   float m_fSpeed;						//0x59C - 0x5A0
-   uint8_t _pad167[0x18];				//0x5A0 - 0x5B8
-   float m_fBrake;						//0x5B8 - 0x5BC
-   uint8_t _pad16[0x24];				//0x5BC - 0x5E0
-   float m_fClutch;						//0x5E0 - 0x5E4
-   uint8_t _pad17[0x2C];				//0x5E4 - 0x610
-   float m_fMaxSteerAngle;				//0x610 - 0x614
-   uint8_t _pad161[0x10];				//0x614 - 0x624
-   float m_fSteerAngle;					//0x624 - 0x628
-   uint8_t _pad18[0x5FC];
-   float m_fTimePerMoveFrame;			//0xC24 - 0xC28
-   uint8_t _pad21[7];
-   uint8_t m_bEngineOn;					//0xC2F - 0xC30
-   float m_fFuel;						//0xC30 - 0xC34
-   uint8_t _pad19[0x4];					//0xC34 - 0xC38
-   void** m_pWheels;					//0xC38 - 0xC3C
-   S_vector m_aForward;					//0xC3C - 0xC48
-   S_vector m_aRight;					//0xC48 - 0xC54
-   S_vector m_aUp;						//0xC54 - 0xC60
-   uint8_t _pad22[0x1330];					
-   S_vector m_aSpeed;
-   uint8_t _pad23[4];
-   float m_fMaxFuel;					//0x1FA0 - 0x1FA4
+	uint8_t _pad1[100];
+	uint16_t m_iMoveFramesCnt;
+	uint16_t m_iCurrentMoveFrame;
+	S_vector m_aMovPosition;
+	S_vector m_aMovForward;
+	S_vector m_aMovUp;
+	S_vector m_aMovRight;
+	__int16 _pad2[20];
+	int m_iLockCount;
+	char _pad2_1[212];
+	float m_fSteeringLinearity;
+	float m_fClutchLinearity;
+	uint8_t _pad3[4];
+	int m_uFlags;
+	uint8_t _pad4[12];
+	float m_fEngineHealth;
+	uint8_t _pad5[52];
+	float m_fHealth;
+	uint8_t _pad6[40];
+	void* m_pFirstMesh;
+	void* m_pLastMesh;
+	uint8_t _pad7[196];
+	void* m_pCallbackCC;
+	void* m_pCallbackCC1;
+	void* m_pCallbackACI;
+	void* m_pCallbackAF;
+	void* m_pCallbackWC;
+	void* m_pCallbackPD;
+	void* m_pCallbackPDW;
+	void* m_pCallbackBG;
+	void* m_pCallbackUnk;
+	void* m_pCallbackWU;
+	void* m_pCallbackCFB;
+	void* m_pCallbackCFW;
+	void* m_pCallbackDVP;
+	void* m_pCallbackVR;
+	void* m_pCallbackLP;
+	S_vector m_aPosition;
+	uint8_t _pad8[132];
+	float m_fMaxHandbrakeForce;
+	float m_fHandbrakeMax;
+	float m_fHandbrakeCurrent;
+	uint8_t _pad9[12];
+	float m_fBrakeMax;
+	float m_fBrakeCurrent;
+	uint8_t _pad10[80];
+	S_vector m_aAngularVelocity;
+	uint8_t _pad11[4];
+	uint8_t m_bHorn;
+	uint8_t m_bSiren;
+	uint8_t m_SoundEnabled;
+	char _pad12_f;
+	float m_fHandbrake;
+	uint8_t _pad12[108];
+	float m_fSpeedLimit;
+	uint8_t m_bDontInterpolateSteering;
+	char _pad13;
+	uint8_t m_bDontInterpolateBrake;
+	uint8_t m_bDontInterpolateClutch;
+	char _pad14[24];
+	uint32_t m_iWheelCnt;
+	float m_fDeltaUpdateTime;
+	uint8_t _pad15[116];
+	float m_fAccelerating;
+	uint8_t _pad16[4];
+	char m_fUnk0;
+	char _pad16_2[7];
+	float m_fEngineRpm;
+	uint8_t _pad17[8];
+	int32_t m_iLastGear;
+	int32_t m_iGear;
+	uint8_t _pad18[4];
+	int32_t m_iMaxGear;
+	int32_t m_iUnk1;
+	float m_GearRatios[4];
+	char _pad19[28];
+	float m_fSpeed;
+	char _pad20[24];
+	float m_fBrake;
+	char _pad21[36];
+	float m_fClutch;
+	uint8_t _pad22[4];
+	int m_Punk0;
+	uint8_t _pad22APol[36];
+	float m_fMaxSteerAngle;
+	char _pad23[16];
+	float m_fSteerAngle;
+	__int16 _pad24[58];
+	void* m_pHornSound;
+	void* m_pSirenSound;
+	uint8_t _pad24_2[732];
+	void* m_pHornStopSound;
+	void* m_pSirenStopSound;
+	char _pad24_3[68];
+	void* m_pPneuPunctureSound;
+	uint8_t _pad24_5[596];
+	float m_fTimePerMoveFrame;
+	__int16 _pad25[2];
+	uint8_t m_bIsEngineRunning;
+	char _pad25_2[2];
+	uint8_t m_bEngineOn;
+	float m_fFuel;
+	char _pad26[4];
+	void** m_pWheels;
+	S_vector m_aForward;
+	S_vector m_aRight;
+	S_vector m_aUp;
+	char _pad27[4912];
+	S_vector m_aSpeed;
+	uint8_t _pad28[4];
+	float m_fMaxFuel;
 };
+
+#pragma pack(pop)
 
 //static_assert(sizeof(C_Vehicle) == 0x21AC);
