@@ -2,7 +2,9 @@
 #include <Windows.h>
 
 #include "C_Vehicle.h"
+
 #include "I3d_math.h"
+#include "I3d_frame.h"
 
 void Init();
 
@@ -38,5 +40,7 @@ void Init() {
     freopen("CONOUT$", "w", stdout);
 
     I3D_math::InitHooks();
+    I3D_frame::InitHooks();
+
     C_Vehicle::InitHooks();
 }

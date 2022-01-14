@@ -3,6 +3,8 @@
 #include <I3d_math.h>
 #pragma pack(push,1)
 
+class I3D_sound;
+
 class C_Vehicle
 {
 public:
@@ -111,13 +113,13 @@ private:
 	char _pad23[16];
 	float m_fSteerAngle;
 	__int16 _pad24[58];
-	void* m_pHornSound;
-	void* m_pSirenSound;
+	I3D_sound* m_pHornSound;
+	I3D_sound* m_pSirenSound;
 	uint8_t _pad24_2[732];
-	void* m_pHornStopSound;
-	void* m_pSirenStopSound;
+	I3D_sound* m_pHornStopSound;
+	I3D_sound* m_pSirenStopSound;
 	char _pad24_3[68];
-	void* m_pPneuPunctureSound;
+	I3D_sound* m_pPneuPunctureSound;
 	uint8_t _pad24_5[596];
 	float m_fTimePerMoveFrame;
 	__int16 _pad25[2];

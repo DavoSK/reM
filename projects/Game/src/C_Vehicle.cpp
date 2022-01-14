@@ -11,6 +11,8 @@
 #include <reversiblehooks/ReversibleHooks.h>
 #include "plugin.h"
 
+#include "I3d_sound.h"
+
 S_vector* C_Vehicle::GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* offset)
 {
     float offsetX = 0.0f;
@@ -375,66 +377,40 @@ int C_Vehicle::HornSnd(bool doHorn)
 {
     if (doHorn)
     {
-        void* m_pMuteSound = nullptr;
+        I3D_sound* m_pMuteSound = nullptr;
 
         //NOTE: whats this ?
         if (*((uint8_t*)(uint32_t)this + 0x491))
         {
-            if (m_pHornSound != nullptr)
+            if (m_pHornSound != nullptr && !m_pHornSound->IsPlaying())
             {
-                //NOTE: I3D_Sound::IsPlaying() -> bool
-                bool isPlaying = (*(bool(__stdcall**)(void*, int))(*(uint32_t*)(uint32_t)m_pHornSound + 0x54))(m_pHornSound, 0);
-                if (!isPlaying)
-                {
-                    //NOTE: I3D_Sound::SetOn(1, 0);
-                    (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pHornSound + 0x24))(m_pHornSound, 1);
-
-                    //NOTE: I3D_Sound::SetVolume(1.0f);
-                    return (*(int(__stdcall**)(void*, float))(*(uint32_t*)(uint32_t)m_pHornSound + 0x68))(
-                        m_pHornSound,
-                        1.0f);
-                }
+                m_pHornSound->SetOn(true);
+                m_pHornSound->SetVolume(1.0f);
             }
             
             m_pMuteSound = m_pHornStopSound;
         }
         else
         {
-            if (m_pHornStopSound != nullptr)
+            if (m_pHornStopSound != nullptr && !m_pHornStopSound->IsPlaying())
             {
-                //NOTE: I3D_Sound::IsPlaying() -> bool
-                bool isPlaying = (*(bool(__stdcall**)(void*, int))(*(uint32_t*)(uint32_t)m_pHornStopSound + 0x54))(m_pHornStopSound, 0);
-                if (!isPlaying)
-                {
-                    //NOTE: I3D_Sound::SetOn(1, 0);
-                    (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pHornStopSound + 0x24))(m_pHornStopSound, 1);
-
-                    //NOTE: I3D_Sound::SetVolume(1.0f);
-                    return (*(int(__stdcall**)(void*, float))(*(uint32_t*)(uint32_t)m_pHornStopSound + 0x68))(
-                        m_pHornStopSound,
-                        1.0f);
-                }
+                m_pHornStopSound->SetOn(true);
+                m_pHornStopSound->SetVolume(1.0f);
             }
             
             m_pMuteSound = m_pHornSound;
         }
 
         if (m_pMuteSound)
-        {
-            return (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pMuteSound + 0x24))(m_pMuteSound, 0);
-        }
+            m_pMuteSound->SetOn(false);
     }
     else
     {
         if (m_pHornSound != nullptr) 
-        {
-            return (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pHornSound + 0x24))(m_pHornSound, 0);
-        }
-
-        if (m_pHornStopSound != nullptr) 
-        {
-            return (*(int(__stdcall**)(void*, uint32_t))(*(uint32_t*)(uint32_t)m_pHornStopSound + 0x24))(m_pHornStopSound, 0);
-        }
+            m_pHornSound->SetOn(false);
+       
+        if (m_pHornStopSound != nullptr)
+            m_pHornStopSound->SetOn(false);
     }
 
     return 0;
