@@ -5,7 +5,7 @@
 
 #include <Windows.h>
 #include <cstdio>
-#include <cmath>
+#include <math.h>
 #include <algorithm>
 
 #include <reversiblehooks/ReversibleHooks.h>
@@ -31,9 +31,6 @@ S_vector* C_Vehicle::GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* of
 
 bool C_Vehicle::Engine(float deltaTime, float a3, float a4)
 {
-    //m_pCallbackLP = (void*)kokot;
-    constexpr auto test = offsetof(C_Vehicle, m_pHornStopSound);
-
     //NOTE: this looks like its not vector  
     //just used as container for 3 floats
     S_vector v42(0.0f, 0.0f, 0.0f);
@@ -143,15 +140,15 @@ bool C_Vehicle::Move(float a1, float a2, float a3, float a4, float a5, float a6)
     return plugin::CallMethodAndReturn<bool, 0x4E2090>(this, a1, a2, a3, a4, a5, a6);
 }
 
-bool C_Vehicle::SetGear(int32_t gear)
+bool C_Vehicle::SetGear(int32_t iGear)
 {
-    if (gear >= -1 && gear <= m_iMaxGear)
+    if (iGear >= -1 && iGear <= m_iMaxGear)
     {
-        if (m_iGear == gear)
+        if (m_iGear == iGear)
             return true;
 
         uint32_t v1 = *(uint32_t*)((uint32_t)this + 0xB8);
-        if (v1 != 1 || gear >= 0)
+        if (v1 != 1 || iGear >= 0)
         {
             float v3 = *(float*)((uint32_t)this + 0x1EC);
             if ((*(uint32_t*)((uint32_t)this + 0xC68) & 0x4000) == 0 || v3 < 0.0f)
@@ -160,11 +157,11 @@ bool C_Vehicle::SetGear(int32_t gear)
                     return true;
             }
 
-            float v8 = m_GearRatios[gear] /
+            float v8 = m_GearRatios[iGear] /
                        m_GearRatios[m_iLastGear] * *(float*)((uint32_t)this + 0x548);
 
             float v9 = *(float*)((uint32_t)this + 0x1F9C);
-            if (gear == -1 || v8 <= v9)
+            if (iGear == -1 || v8 <= v9)
             {
                 uint32_t v12 = *(uint32_t*)((uint32_t)this + 0x5E8);
                 *(uint32_t*)((uint32_t)this + 0x494) = 0;
@@ -174,7 +171,7 @@ bool C_Vehicle::SetGear(int32_t gear)
                     *(uint32_t*)((uint32_t)this + 0x5E8) = v12;
                 }
 
-                m_iGear = gear;
+                m_iGear = iGear;
                 return 1;
             }
         }
@@ -183,16 +180,16 @@ bool C_Vehicle::SetGear(int32_t gear)
     return 0;
 }
 
-bool C_Vehicle::SetBrake(float brake)
+bool C_Vehicle::SetBrake(float fBrake)
 {
-    if (brake > 1.0f || brake < 0.0f || *(uint32_t*)((uint32_t)this + 0xB0) == 1)
+    if (fBrake > 1.0f || fBrake < 0.0f || *(uint32_t*)((uint32_t)this + 0xB0) == 1)
         return false;
 
     if (!*(uint8_t*)((uint32_t)this + 0x4CC))
     {
         if ( m_bDontInterpolateBrake )
         {
-            m_fBrake = brake;
+            m_fBrake = fBrake;
         }
         else
         {
@@ -201,10 +198,10 @@ bool C_Vehicle::SetBrake(float brake)
             if (m_fBrakeCurrent > m_fBrakeMax)
                 m_fBrakeCurrent = m_fBrakeMax;
 
-            m_fBrake = m_fBrakeCurrent / m_fBrakeMax * brake;
+            m_fBrake = m_fBrakeCurrent / m_fBrakeMax * fBrake;
         }
 
-        if (brake > 0.0f)
+        if (fBrake > 0.0f)
         {
             *(uint32_t*)((uint32_t)this + 0x3A8) = 0;
             *(uint32_t*)((uint32_t)this + 0x3A4) = 0;
@@ -219,13 +216,13 @@ bool C_Vehicle::SetBrake(float brake)
         *(uint32_t*)((uint32_t)this + 0x3A4) = 0;
         *(uint32_t*)((uint32_t)this + 0x3A8) = 0;
         if (v25)
-            *(float*)((uint32_t)this + 0x3A4) = brake;
+            *(float*)((uint32_t)this + 0x3A4) = fBrake;
         return true;
     }
 
     if (m_bDontInterpolateBrake)
     {
-        m_fBrake = brake;
+        m_fBrake = fBrake;
     }
     else
     {
@@ -234,11 +231,11 @@ bool C_Vehicle::SetBrake(float brake)
         if (m_fBrakeCurrent > m_fBrakeMax)
             m_fBrakeCurrent = m_fBrakeMax;
 
-        m_fBrake = m_fBrakeCurrent / m_fBrakeMax * brake;
+        m_fBrake = m_fBrakeCurrent / m_fBrakeMax * fBrake;
     }
 
  
-    if (brake > 0.0f)
+    if (fBrake > 0.0f)
     {
         *(uint32_t*)((uint32_t)this + 0x3A8) = 0;
         *(uint32_t*)((uint32_t)this + 0x3A4) = 0;
@@ -248,42 +245,43 @@ bool C_Vehicle::SetBrake(float brake)
     return true;
 }
 
-bool C_Vehicle::SetSpeedLimit(float limit)
+bool C_Vehicle::SetSpeedLimit(float fLimit)
 {
-    m_fSpeedLimit = limit;
+    m_fSpeedLimit = fLimit;
+
     if(m_fSpeedLimit > 0.0f)
-        m_fSpeedLimit = limit + 0.5f;
+        m_fSpeedLimit = fLimit + 0.5f;
     return true;
 }
 
-bool C_Vehicle::SetClutch(float clutch)
+bool C_Vehicle::SetClutch(float fClutch)
 {
-    clutch = std::clamp(clutch, 0.0f, 1.0f);
+    fClutch = std::clamp(fClutch, 0.0f, 1.0f);
     
     if ( m_bDontInterpolateSteering )
     {
-        m_fClutch = ((1.0f - clutch) * m_fClutchLinearity + clutch) * clutch;
+        m_fClutch = ((1.0f - fClutch) * m_fClutchLinearity + fClutch) * fClutch;
     }
     else
     {
-        m_fClutch = clutch;
+        m_fClutch = fClutch;
     }
 
     return true;
 }
 
-bool C_Vehicle::SetSteer(float steer)
+bool C_Vehicle::SetSteer(float fSteer)
 {
-    float steerChange = steer;
+    float steerChange = fSteer;
     if ( m_bDontInterpolateSteering )
     {
-        if ( steer > 0.0f )
+        if (fSteer > 0.0f )
         {
-            steerChange = ((1.0f - steer) * m_fSteeringLinearity + steer) * steer;
+            steerChange = ((1.0f - fSteer) * m_fSteeringLinearity + fSteer) * fSteer;
         }
         else
         {
-            steerChange = -((steer - (steer + 1.0f) * m_fSteeringLinearity) * steer);
+            steerChange = -((fSteer - (fSteer + 1.0f) * m_fSteeringLinearity) * fSteer);
         }
     }
 
@@ -291,13 +289,13 @@ bool C_Vehicle::SetSteer(float steer)
     return true;
 }
 
-bool C_Vehicle::SetSteeringLinearity(float lin)
+bool C_Vehicle::SetSteeringLinearity(float fLin)
 {
-    if ( lin >= 0.0f )
+    if (fLin >= 0.0f )
     {
-        if ( lin <= 1.0f )
+        if (fLin <= 1.0f )
         {
-            m_fSteeringLinearity = lin;
+            m_fSteeringLinearity = fLin;
             return true;
         }
         else
@@ -314,18 +312,18 @@ bool C_Vehicle::SoundOff()
     return plugin::CallMethodAndReturn<bool, 0x4EEC80>(this);
 }
 
-bool C_Vehicle::SetFuel(float fuel)
+bool C_Vehicle::SetFuel(float fFuel)
 {   
-    if ( fuel > m_fMaxFuel )
-        fuel = m_fMaxFuel;
+    if (fFuel > m_fMaxFuel)
+        fFuel = m_fMaxFuel;
     
-    m_fFuel = fuel;
+    m_fFuel = fFuel;
     return true;
 }
 
-bool C_Vehicle::SetHandbrake(bool doBrake)
+bool C_Vehicle::SetHandbrake(bool bBrake)
 {
-    if (doBrake)
+    if (bBrake)
     {
         float val = m_fDeltaUpdateTime + m_fHandbrakeCurrent;
         m_fHandbrakeCurrent = val;
@@ -344,23 +342,29 @@ bool C_Vehicle::SetHandbrake(bool doBrake)
     return true;
 }
 
-bool C_Vehicle::EnableSounds(bool enable)
+bool C_Vehicle::EnableSounds(bool bEnable)
 {
     bool result = false;
-    if ( !enable )
+    if (!bEnable)
     {
-        result = m_SoundEnabled;
+        result = m_bSoundEnabled;
         if ( result )
             result = SoundOff();
     }
 
-    m_SoundEnabled = enable;
+    m_bSoundEnabled = bEnable;
     return result;
 }
 
-int C_Vehicle::LockVehicle(bool doLock)
+char C_Vehicle::InitSounds(S_CARINIT* init)
+{
+    
+    return 0;
+}
+
+int C_Vehicle::LockVehicle(bool bLock)
 {     
-    if (doLock)
+    if (bLock)
         m_iLockCount++;
     else
         m_iLockCount--;
@@ -373,14 +377,24 @@ int C_Vehicle::LockVehicle(bool doLock)
     return m_iLockCount;
 }
 
-int C_Vehicle::HornSnd(bool doHorn)
+int C_Vehicle::HornSnd(bool bHorn)
 {
-    if (doHorn)
+    if (bHorn)
     {
         I3D_sound* m_pMuteSound = nullptr;
 
         //NOTE: whats this ?
         if (*((uint8_t*)(uint32_t)this + 0x491))
+        {
+            if (m_pHornSound2 != nullptr && !m_pHornSound2->IsPlaying())
+            {
+                m_pHornSound2->SetOn(true);
+                m_pHornSound2->SetVolume(1.0f);
+            }
+            
+            m_pMuteSound = m_pHornSound;
+        }
+        else
         {
             if (m_pHornSound != nullptr && !m_pHornSound->IsPlaying())
             {
@@ -388,17 +402,7 @@ int C_Vehicle::HornSnd(bool doHorn)
                 m_pHornSound->SetVolume(1.0f);
             }
             
-            m_pMuteSound = m_pHornStopSound;
-        }
-        else
-        {
-            if (m_pHornStopSound != nullptr && !m_pHornStopSound->IsPlaying())
-            {
-                m_pHornStopSound->SetOn(true);
-                m_pHornStopSound->SetVolume(1.0f);
-            }
-            
-            m_pMuteSound = m_pHornSound;
+            m_pMuteSound = m_pHornSound2;
         }
 
         if (m_pMuteSound)
@@ -406,11 +410,11 @@ int C_Vehicle::HornSnd(bool doHorn)
     }
     else
     {
-        if (m_pHornSound != nullptr) 
-            m_pHornSound->SetOn(false);
+        if (m_pHornSound2 != nullptr)
+            m_pHornSound2->SetOn(false);
        
-        if (m_pHornStopSound != nullptr)
-            m_pHornStopSound->SetOn(false);
+        if (m_pHornSound != nullptr)
+            m_pHornSound->SetOn(false);
     }
 
     return 0;
@@ -418,17 +422,18 @@ int C_Vehicle::HornSnd(bool doHorn)
 
 void C_Vehicle::InitHooks()
 {
-    ReversibleHooks::Install("C_Vehicle", "HornSnd", 0x4EDA40, &C_Vehicle::HornSnd);
-    ReversibleHooks::Install("C_Vehicle", "LockVehicle", 0x4CD600, &C_Vehicle::LockVehicle);
-    ReversibleHooks::Install("C_Vehicle", "Engine", 0x4E1CE0, &C_Vehicle::Engine);
-    ReversibleHooks::Install("C_Vehicle", "SetBrake", 0x4CB2D0, &C_Vehicle::SetBrake);
-    ReversibleHooks::Install("C_Vehicle", "SetGear", 0x4CB070, &C_Vehicle::SetGear);
-    ReversibleHooks::Install("C_Vehicle", "GetWheelCamPos", 0x4C6010, &C_Vehicle::GetWheelCamPos);
-    ReversibleHooks::Install("C_Vehicle", "SetSpeedLimit", 0x4CB6A0, &C_Vehicle::SetSpeedLimit);
-    ReversibleHooks::Install("C_Vehicle", "SetClutch", 0x4CB460, &C_Vehicle::SetClutch);
-    ReversibleHooks::Install("C_Vehicle", "SetSteer", 0x4CB4D0, &C_Vehicle::SetSteer);
-    ReversibleHooks::Install("C_Vehicle", "SetSteeringLinearity", 0x4CB570, &C_Vehicle::SetSteeringLinearity);
-    ReversibleHooks::Install("C_Vehicle", "SetFuel", 0x4CB6E0, &C_Vehicle::SetFuel);
-    ReversibleHooks::Install("C_Vehicle", "SetHandbrake", 0x4CB710, &C_Vehicle::SetHandbrake);
-    ReversibleHooks::Install("C_Vehicle", "EnableSounds", 0x4CB780, &C_Vehicle::EnableSounds);
+    ReversibleHooks::Install("C_Vehicle", "InitSounds",             0x4EAC70, &C_Vehicle::InitSounds);
+    ReversibleHooks::Install("C_Vehicle", "HornSnd",                0x4EDA40, &C_Vehicle::HornSnd);
+    ReversibleHooks::Install("C_Vehicle", "LockVehicle",            0x4CD600, &C_Vehicle::LockVehicle);
+    ReversibleHooks::Install("C_Vehicle", "Engine",                 0x4E1CE0, &C_Vehicle::Engine);
+    ReversibleHooks::Install("C_Vehicle", "SetBrake",               0x4CB2D0, &C_Vehicle::SetBrake);
+    ReversibleHooks::Install("C_Vehicle", "SetGear",                0x4CB070, &C_Vehicle::SetGear);
+    ReversibleHooks::Install("C_Vehicle", "GetWheelCamPos",         0x4C6010, &C_Vehicle::GetWheelCamPos);
+    ReversibleHooks::Install("C_Vehicle", "SetSpeedLimit",          0x4CB6A0, &C_Vehicle::SetSpeedLimit);
+    ReversibleHooks::Install("C_Vehicle", "SetClutch",              0x4CB460, &C_Vehicle::SetClutch);
+    ReversibleHooks::Install("C_Vehicle", "SetSteer",               0x4CB4D0, &C_Vehicle::SetSteer);
+    ReversibleHooks::Install("C_Vehicle", "SetSteeringLinearity",   0x4CB570, &C_Vehicle::SetSteeringLinearity);
+    ReversibleHooks::Install("C_Vehicle", "SetFuel",                0x4CB6E0, &C_Vehicle::SetFuel);
+    ReversibleHooks::Install("C_Vehicle", "SetHandbrake",           0x4CB710, &C_Vehicle::SetHandbrake);
+    ReversibleHooks::Install("C_Vehicle", "EnableSounds",           0x4CB780, &C_Vehicle::EnableSounds);
 }

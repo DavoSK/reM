@@ -90,19 +90,13 @@ S_vector S_vector::operator-(S_vector const& vec) const
 	return S_vector(x - vec.x, y - vec.y, z - vec.z);
 }
 
-void S_vector::GetNormal(S_vector const& vec1, S_vector const& vec2, S_vector const& vec3)
+void S_vector::GetNormal(const S_vector& u1, const S_vector& v1, const S_vector& w1)
 {
-	float v4 = vec3.x - vec2.x;
-	float v5 = vec3.y - vec2.y;
-	float v6 = vec3.z - vec2.z;
-
-	float v8 = vec1.x - vec2.x;
-	float v9 = vec1.y - vec2.y;
-	float v7 = vec1.z - vec2.z;
-
-	x = v7 * v5 - v9 * v6;
-	y = v8 * v6 - v4 * v7;
-	z = v4 * v9 - v8 * v5;
+	float ux = w1.x - v1.x, uy = w1.y - v1.y, uz = w1.z - v1.z;
+	float vx = u1.x - v1.x, vy = u1.y - v1.y, vz = u1.z - v1.z;
+	x = uy * vz - uz * vy;
+	y = uz * vx - ux * vz;
+	z = ux * vy - uy * vx;
 }
 
 double S_vector::Magnitude2() const
@@ -126,9 +120,9 @@ void S_vector::SetNormalized(S_vector const& vec)
 	}
 }
 
-S_vector S_vector::Cross(S_vector const& vec)
+S_vector S_vector::Cross(S_vector const& v) const
 {
-	return S_vector(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
+	return S_vector(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
 }
 
 double S_vector::CosAngleTo(S_vector const& vec)
@@ -142,14 +136,12 @@ double S_vector::CosAngleTo(S_vector const& vec)
 	return sqrt((val + 1.0f) * 0.5f);
 }
 
-double S_vector::AngleTo(S_vector const& vec)
+double S_vector::AngleTo(S_vector const& v)
 {
-	float len1 = x * x + y * y + z * z;
-	float len2 = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
-
-	float dot = x * vec.x + y * vec.y + z * vec.z;
-
-	return acos(std::clamp(dot / sqrt(len1 * len2), -1.0f, 1.0f));
+	float f = Magnitude() * v.Magnitude();
+	if (f < MRG_ZERO) return 0.0f;
+	float acos_val = Dot(v) / f;
+	return (float)acos(::Min(::Max(acos_val, -1.0f), 1.0f));
 }
 
 S_vector S_vector::RotateByMatrix(S_matrix const& mat)
@@ -262,56 +254,33 @@ void __stdcall S_quat::Inverse(S_vector& vec, float& val)
 	assert(false);
 }
 
-S_quat S_quat::Slerp(S_quat const& quat, float t, bool unk)
+S_quat S_quat::Slerp(const S_quat& q, float t, bool shorten) const
 {
-	float mag2 = quat.y * y + quat.x * x + quat.w * w + quat.z * z;
-	float v12;
-	float v13;
-	float v14;
-	float v15;
-	float v8;
-	float v9;
-	float v10;
-	float v20;
-	float v22;
-	float v21 = mag2;
+	float cos_a = Dot(q);
 
-	if (mag2 >= 0.0f)
-	{
-		v12 = quat.x;
-		v13 = quat.y;
-		v14 = quat.z;
-		v15 = quat.w;
-	}
-	else
-	{
-		v21 = -mag2;
-		v12 = -quat.x;
-		v13 = -quat.y;
-		v14 = -quat.z;
-		v15 = -quat.w;
+	cos_a = Max(-1.0f, Min(1.0f, cos_a));
+	float angle = (float)acos(cos_a);
+	float sin_a = (float)sin(angle);
+	if (I3DFabs(sin_a) < 1e-6f)
+		return (*this);
+
+	float flipped = false;
+	//select shorter path
+	if (shorten && cos_a < 0.0f) {
+		angle -= PI;
+		flipped = true;
 	}
 
-	if (1.0f - v21 <= 0.0001f)
-	{
-		v9 = 1.0f - t;
-		v10 = t;
-	}
-	else
-	{
-		v8 = acos(v21);
-		v22 = v8;
-		v20 = 1.0f / sin(v8);
-		v9 = sin((1.0f - t) * v22) * v20;
-		v10 = sin(v22 * t) * v20;
-	}
+	float inv_sin_a = 1.0f / sin_a;
+	float c0 = (float)sin((1.0f - t) * angle) * inv_sin_a;
+	float c1 = (float)sin(t * angle) * (flipped ? -inv_sin_a : inv_sin_a);
 
-	S_quat res;
-	res.x = v12 * v10 + v9 * x;
-	res.y = v13 * v10 + v9 * y;
-	res.z = v9 * z + v10 * v14;
-	res.w = v9 * w + v10 * v15;
-	return res;
+	S_quat ret;
+	ret.x = x * c0 + q.x * c1;
+	ret.y = y * c0 + q.y * c1;
+	ret.z = z * c0 + q.z * c1;
+	ret.w = w * c0 + q.w * c1;
+	return ret;
 }
 
 void __stdcall S_quat::Make(S_vector const& axis, float angle)
@@ -403,7 +372,7 @@ void __stdcall S_quat::Make(S_matrix const& mat)
 	S_vector* secRow = (S_vector*)((float*)&mat.m_fData[4]);
 	S_vector* firstRow = (S_vector*)((float*)&mat.m_fData[0]);
 	S_vector v61 = S_vector((float)firstRow->Magnitude(), (float)secRow->Magnitude(), (float)thirdRow->Magnitude());
-	
+
 	if (v61.z + v61.y + v61.x < 0.0000000099999999f)
 	{
 	LABEL_28:
@@ -557,7 +526,7 @@ void __stdcall S_quat::Make(S_matrix const& mat)
 				v46.x = -v54;
 				v46.y = -v55;
 				v46.z = -v56;
-				
+
 				v72.Make(v46, v50);
 			}
 			goto LABEL_73;
@@ -626,7 +595,7 @@ void __stdcall S_quat::Make(S_matrix const& mat)
 		v73.m_fData[0] = v46.x;
 		v73.m_fData[1] = v46.y;
 		v73.m_fData[2] = v46.z;
-		
+
 		v50 = v46.x * v46.x + v46.y * v46.y + v46.z * v46.z;
 		v49 = v50;
 		if (v50 >= 1e-08)
@@ -689,7 +658,7 @@ void __stdcall S_quat::Make(S_matrix const& mat)
 
 		v46.z = v8 - secRow->x * mat.m_fData[1];
 		v73.m_fData[10] = v46.z;
-		
+
 		v50 = v46.x * v46.x + v46.z * v46.z + v46.y * v46.y;
 		v49 = v50;
 		if (v50 >= 1e-08)
@@ -1282,7 +1251,7 @@ double __stdcall S_matrix::GetUScale()
 void I3D_math::InitHooks()
 {
 	uint32_t engineHandle = (uint32_t)GetModuleHandle("LS3DF.dll");
-	auto rebase = [engineHandle](uint32_t adr) -> uint32_t { 
+	auto rebase = [engineHandle](uint32_t adr) -> uint32_t {
 		return (adr - 0x10000000) + engineHandle;
 	};
 

@@ -3,7 +3,60 @@
 #include <I3d_math.h>
 #pragma pack(push,1)
 
+class I3D_frame;
 class I3D_sound;
+
+struct S_wheel 
+{
+	uint32_t _pad0;
+	I3D_frame* m_pFrame;
+	uint8_t _pad1[80];
+	S_vector m_aVecUnk1;
+	S_vector m_aVecUnk2;
+	uint8_t _pad4[156];
+	float m_fUnk1;
+	float m_fUnk2;
+	float m_fRotationXAxis;
+	uint32_t _pad2[2];
+	uint32_t m_uFlags;
+	uint8_t _pad3[100];
+	float m_fWheelOutOfAxis;
+};
+
+struct S_CARINIT
+{
+	uint8_t _pad0[3172];
+	char m_szSoundEngineOn[16];
+	char m_szSoundEngineOff[16];
+	char m_szSoundEngineBad[16];
+	char m_szSoundEngineNpc[16];
+	char m_szSoundEngineForward[10][16];
+	char m_szSoundEngineReverse[5][16];
+	char m_szSoundEngineIdle[2][16];
+	char m_szSoundHorn[16];
+	char m_szSoundSiren[16];
+	char m_szSoundHandbrake[16];
+	char m_szSoundGearNext[16];
+	char m_szSoundGearPrev[16];
+	char m_szSoundDrift[16];
+	char m_szSoundUnk[16];
+	char m_szSoundCrashAbsorber[16];
+	char m_szSoundShotInWheel[16];
+	char m_szSoundGlassBreak[16];
+	char m_szSoundCrashA1[16];
+	char m_szSoundCrashK1[16];
+	char m_szSoundCrashB1[16];
+	char m_szSoundCrashC1[16];
+	char m_szSoundCrashA2[16];
+	char m_szSoundCrashK2[16];
+	char m_szSoundCrashB2[16];
+	char m_szSoundCrashC2[16];
+	char m_szSoundDoorOpen[16];
+	char m_szSoundDoorClose[16];
+	uint8_t _pad1[560];
+};
+
+static_assert(sizeof(S_CARINIT) == 0x1124);
 
 class C_Vehicle
 {
@@ -11,18 +64,19 @@ public:
 	S_vector* GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* pos);
 	bool Engine(float a1, float a2, float a3);
 	bool Move(float a1, float a2, float a3, float a4, float a5, float a6);
-	bool SetGear(int32_t gear);
-	bool SetBrake(float brake);
-	bool SetSpeedLimit(float limit);
-	bool SetClutch(float clutch);
-	bool SetSteer(float steer);
-	bool SetSteeringLinearity(float lin);
+	bool SetGear(int32_t iGear);
+	bool SetBrake(float fBrake);
+	bool SetSpeedLimit(float fLimit);
+	bool SetClutch(float fClutch);
+	bool SetSteer(float fSteer);
+	bool SetSteeringLinearity(float fLin);
 	bool SoundOff();
-	bool SetFuel(float fuel);
-	bool SetHandbrake(bool doBrake);
-	bool EnableSounds(bool enable);
-	int LockVehicle(bool doLock);
-	int HornSnd(bool doHorn);
+	bool SetFuel(float fFuel);
+	bool SetHandbrake(bool bDoBrake);
+	bool EnableSounds(bool bEnable);
+	char InitSounds(S_CARINIT* init);
+	int LockVehicle(bool bLock);
+	int HornSnd(bool bHorn);
 	static void InitHooks();
 private:
 	uint8_t _pad1[100];
@@ -32,7 +86,7 @@ private:
 	S_vector m_aMovForward;
 	S_vector m_aMovUp;
 	S_vector m_aMovRight;
-	__int16 _pad2[20];
+	uint8_t _pad2[40];
 	int m_iLockCount;
 	char _pad2_1[212];
 	float m_fSteeringLinearity;
@@ -75,23 +129,23 @@ private:
 	uint8_t _pad11[4];
 	uint8_t m_bHorn;
 	uint8_t m_bSiren;
-	uint8_t m_SoundEnabled;
-	char _pad12_f;
+	uint8_t m_bSoundEnabled;
+	uint8_t _pad12_f;
 	float m_fHandbrake;
 	uint8_t _pad12[108];
 	float m_fSpeedLimit;
 	uint8_t m_bDontInterpolateSteering;
-	char _pad13;
+	uint8_t _pad13;
 	uint8_t m_bDontInterpolateBrake;
 	uint8_t m_bDontInterpolateClutch;
-	char _pad14[24];
+	uint8_t _pad14[24];
 	uint32_t m_iWheelCnt;
 	float m_fDeltaUpdateTime;
 	uint8_t _pad15[116];
 	float m_fAccelerating;
 	uint8_t _pad16[4];
 	char m_fUnk0;
-	char _pad16_2[7];
+	uint8_t _pad16_2[7];
 	float m_fEngineRpm;
 	uint8_t _pad17[8];
 	int32_t m_iLastGear;
@@ -100,44 +154,74 @@ private:
 	int32_t m_iMaxGear;
 	int32_t m_iUnk1;
 	float m_GearRatios[4];
-	char _pad19[28];
+	uint8_t _pad19[28];
 	float m_fSpeed;
-	char _pad20[24];
+	uint8_t _pad20[24];
 	float m_fBrake;
-	char _pad21[36];
+	uint8_t _pad21[36];
 	float m_fClutch;
 	uint8_t _pad22[4];
 	int m_Punk0;
-	uint8_t _pad22APol[36];
+	char _pad22APol[16];
+	float m_fMass;
+	char _pad22ATristrvrte[16];
 	float m_fMaxSteerAngle;
-	char _pad23[16];
+	uint8_t _pad23[16];
 	float m_fSteerAngle;
-	__int16 _pad24[58];
+	uint8_t _pad24[116];
+	I3D_sound* m_pHornSound2;
+	I3D_sound* m_pSirenSound2;
+	uint8_t _pad24_2[648];
+	I3D_sound* m_pEngineOnSound;
+	I3D_sound* m_pEngineOffSound;
+	I3D_sound* m_pEngineBadSound;
+	I3D_sound* m_pEngineNpcSound;
+	I3D_sound* m_pEngineForwardSounds[10];
+	I3D_sound* m_pEngineReverseSounds[5];
+	I3D_sound* m_pEngineIdleSounds[2];
 	I3D_sound* m_pHornSound;
 	I3D_sound* m_pSirenSound;
-	uint8_t _pad24_2[732];
-	I3D_sound* m_pHornStopSound;
-	I3D_sound* m_pSirenStopSound;
-	char _pad24_3[68];
-	I3D_sound* m_pPneuPunctureSound;
-	uint8_t _pad24_5[596];
+	I3D_sound* m_pHandbrakeSound;
+	I3D_sound* m_pGearNextSound;
+	I3D_sound* m_pGearPrevSound;
+	I3D_sound* m_pDriftSound;
+	I3D_sound* m_pUnkSound;
+	I3D_sound* m_pCrashAbsorberSound;
+	I3D_sound* m_pShotInWheelSound;
+	I3D_sound* m_pCrashA1Sound;
+	I3D_sound* m_pCrashK1Sound;
+	I3D_sound* m_pCrashB1Sound;
+	I3D_sound* m_pCrashC1Sound;
+	I3D_sound* m_pCrashA2Sound;
+	I3D_sound* m_pCrashK2Sound;
+	I3D_sound* m_pCrashB2Sound;
+	I3D_sound* m_pCrashC2Sound;
+	I3D_sound* m_pDoorOpenSound;
+	I3D_sound* m_pDoorCloseSound;
+	I3D_sound* m_pWheelPunctureSound;
+	char _pad25[596];
 	float m_fTimePerMoveFrame;
-	__int16 _pad25[2];
+	uint8_t _pad25_1[4];
 	uint8_t m_bIsEngineRunning;
-	char _pad25_2[2];
+	uint8_t _pad25_2[2];
 	uint8_t m_bEngineOn;
 	float m_fFuel;
-	char _pad26[4];
-	void** m_pWheels;
+	uint8_t _pad26[4];
+	S_wheel** m_pWheels;
 	S_vector m_aForward;
 	S_vector m_aRight;
 	S_vector m_aUp;
-	char _pad27[4912];
+	uint8_t _pad27[68];
+	void* m_pCarDoors;
+	uint8_t _pad27_1[320];
+	S_matrix m_mUnk0;
+	S_matrix m_mUnk1;
+	uint8_t _pad27_3[4];
+	S_CARINIT m_aCarInit;
+	uint8_t _pad27_4[4];
 	S_vector m_aSpeed;
-	uint8_t _pad28[4];
 	float m_fMaxFuel;
 };
 
 #pragma pack(pop)
-
 //static_assert(sizeof(C_Vehicle) == 0x21AC);
