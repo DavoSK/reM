@@ -1,26 +1,32 @@
 #pragma once
 #include "I3d_math.h"
+#include "Common.h"
 
 #include <cstdint>
 
 typedef uint32_t LS3D_CALLBACK_MESSAGE;
 typedef uint32_t I3DENUMRET;
-typedef uint32_t LS3D_RESULT;
 
 #pragma pack(push,1)
 
-/* 87 */
 struct I3D_bbox
 {
 	S_vector m_aMin;
 	S_vector m_aMax;
 };
 
-/* 88 */
 struct I3D_bsphere
 {
 	S_vector m_aCenter;
 	float m_fRadius;
+};
+
+enum I3D_FRAME_TYPE {
+	FRAME_NULL, FRAME_VISUAL, FRAME_LIGHT, FRAME_CAMERA,
+	FRAME_SOUND, FRAME_SECTOR, FRAME_DUMMY, FRAME_reserved,
+	FRAME_USER, FRAME_MODEL, FRAME_JOINT, FRAME_VOLUME,
+	FRAME_OCCLUDER,
+	FRAME_LAST,
 };
 
 class I3D_frame 
@@ -63,7 +69,7 @@ public:
 	const S_matrix& GetMatrix() const { return m_aLocalMat; }
 
 	static void InitHooks();
-//private:
+private:
 	uint32_t m_uVtable;
 	int32_t m_iRefCount;
 	char _pad0[4];

@@ -266,7 +266,7 @@ S_quat S_quat::Slerp(const S_quat& q, float t, bool shorten) const
 
 	float flipped = false;
 	//select shorter path
-	if (shorten && cos_a < 0.0f) {
+	if (/*shorten &&*/ cos_a < 0.0f) {
 		angle -= PI;
 		flipped = true;
 	}

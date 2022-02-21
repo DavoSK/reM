@@ -356,9 +356,52 @@ bool C_Vehicle::EnableSounds(bool bEnable)
     return result;
 }
 
-char C_Vehicle::InitSounds(S_CARINIT* init)
+I3D_sound* C_Vehicle::SoundInit(
+    const char* szSound, 
+    I3D_sound** pSoundOut, 
+    uint32_t uType, 
+    float fVal1, float fVal2, 
+    float fVal3, float fVal4, 
+    bool bDoRepeat, bool b2)
 {
-    
+    return plugin::CallMethodAndReturn<I3D_sound*, 0x004EF110>(this, szSound, pSoundOut, uType, fVal1, fVal2, fVal3, fVal4, bDoRepeat, b2);
+}
+
+bool C_Vehicle::InitSounds(S_CARINIT* init)
+{
+    SoundInit(init->m_szSoundEngineOn, &m_pEngineOnSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, true);
+    SoundInit(init->m_szSoundEngineOff, &m_pEngineOffSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, true);
+    SoundInit(init->m_szSoundEngineBad, &m_pEngineBadSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, true);
+    SoundInit(init->m_szSoundEngineNpc, &m_pEngineNpcSound, 8, 4.0f, 50.0f, 0.3f, 0.2f, true, true);
+
+    for (size_t i = 0; i < 5; i++) 
+    {
+        SoundInit(init->m_szSoundEngineForward[i], &m_pEngineForwardSounds[i], 8, 4.0f, 50.0f, 0.3f, 0.2f, true, true);
+        SoundInit(init->m_szSoundEngineReverse[i], &m_pEngineReverseSounds[i], 8, 4.0f, 50.0f, 0.3f, 0.2f, true, true);
+    }
+
+    SoundInit(init->m_szSoundEngineIdle[0], &m_pEngineIdleSounds[0], 0, 4.0f, 50.0f, 0.3f, 0.2f, true, true);
+    SoundInit(init->m_szSoundEngineIdle[1], &m_pEngineIdleSounds[1], 0, 4.0f, 50.0f, 0.3f, 0.2f, true, false);
+    SoundInit(init->m_szSoundHorn, &m_pHornSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, true, false);
+    SoundInit(init->m_szSoundSiren, &m_pSirenSound, 0, 4.0f, 110.0f, 0.45f, 0.37f, true, false);
+    SoundInit(init->m_szSoundHandbrake, &m_pHandbrakeSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundGearNext, &m_pGearNextSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundGearPrev, &m_pGearPrevSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundDrift, &m_pDriftSound, 8, 4.0f, 50.0f, 0.3f, 0.2f, true, false);
+    SoundInit(init->m_szSoundUnk, &m_pUnkSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, true, false);
+    SoundInit(init->m_szSoundCrashAbsorber, &m_pCrashAbsorberSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundShotInWheel, &m_pShotInWheelSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundCrashA1, &m_pCrashA1Sound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundCrashK1, &m_pCrashK1Sound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundCrashB1, &m_pCrashB1Sound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundCrashC1, &m_pCrashC1Sound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundCrashA2, &m_pCrashA2Sound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundCrashK2, &m_pCrashK2Sound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundCrashB2, &m_pCrashB2Sound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundCrashC2, &m_pCrashC2Sound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundDoorOpen, &m_pDoorOpenSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit(init->m_szSoundDoorClose, &m_pDoorCloseSound, 0, 4.0f, 50.0f, 0.3f, 0.2f, false, false);
+    SoundInit("PNEU_PUNC.WAV", &m_pWheelPunctureSound, 8, 6.0f, 30.0f, 0.3f, 0.2f, true, false);
     return 0;
 }
 

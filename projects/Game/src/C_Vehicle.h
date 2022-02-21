@@ -74,9 +74,11 @@ public:
 	bool SetFuel(float fFuel);
 	bool SetHandbrake(bool bDoBrake);
 	bool EnableSounds(bool bEnable);
-	char InitSounds(S_CARINIT* init);
+	I3D_sound* SoundInit(const char* szSound, I3D_sound** pSoundOut, uint32_t uType, float v1, float v2, float v3, float v4, bool b1, bool b2);
+	bool InitSounds(S_CARINIT* init);
 	int LockVehicle(bool bLock);
 	int HornSnd(bool bHorn);
+
 	static void InitHooks();
 private:
 	uint8_t _pad1[100];
