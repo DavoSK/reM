@@ -307,11 +307,6 @@ bool C_Vehicle::SetSteeringLinearity(float fLin)
     return false;
 }
 
-bool C_Vehicle::SoundOff() 
-{
-    return plugin::CallMethodAndReturn<bool, 0x4EEC80>(this);
-}
-
 bool C_Vehicle::SetFuel(float fFuel)
 {   
     if (fFuel > m_fMaxFuel)
@@ -344,16 +339,109 @@ bool C_Vehicle::SetHandbrake(bool bBrake)
 
 bool C_Vehicle::EnableSounds(bool bEnable)
 {
-    bool result = false;
+    bool bResult = false;
+
     if (!bEnable)
     {
-        result = m_bSoundEnabled;
-        if ( result )
-            result = SoundOff();
+        bResult = m_bSoundEnabled;
+        if (bResult)
+            bResult = SoundOff();
     }
 
     m_bSoundEnabled = bEnable;
-    return result;
+    return bResult;
+}
+
+bool C_Vehicle::SoundOff()
+{    
+    if (m_pEngineOnSound)
+        m_pEngineOnSound->SetOn(false, true);
+
+    if (m_pEngineOffSound)
+        m_pEngineOffSound->SetOn(false, true);
+
+    if (m_pEngineBadSound)
+        m_pEngineBadSound->SetOn(false, true);
+
+    if (m_pEngineNpcSound)
+        m_pEngineNpcSound->SetOn(false, true);
+
+    for (size_t i = 0; i < 5; i++)
+    {
+        if (m_pEngineForwardSounds[i])
+            m_pEngineForwardSounds[i]->SetOn(false, true);
+
+        if (m_pEngineReverseSounds[i])
+            m_pEngineReverseSounds[i]->SetOn(false, true);
+    }
+
+    for (size_t i = 0; i < 2; i++) 
+    {
+        if (m_pEngineIdleSounds[i])
+            m_pEngineIdleSounds[i]->SetOn(false, true);
+    }
+
+    if (m_pHornSound)
+        m_pHornSound->SetOn(false, true);
+
+    if (m_pSirenSound)
+        m_pSirenSound->SetOn(false, true);
+
+    if (m_pHandbrakeSound)
+        m_pHandbrakeSound->SetOn(false, true);
+
+    if (m_pGearNextSound)
+        m_pGearNextSound->SetOn(false, true);
+
+    if (m_pGearPrevSound)
+        m_pGearPrevSound->SetOn(false, true);
+
+    if (m_pDriftSound)
+        m_pDriftSound->SetOn(false, true);
+
+    if (m_pUnkSound)
+        m_pUnkSound->SetOn(false, true);
+
+    if (m_pCrashAbsorberSound)
+        m_pCrashAbsorberSound->SetOn(false, true);
+
+    if (m_pShotInWheelSound)
+        m_pShotInWheelSound->SetOn(false, true);
+
+    if (m_pCrashA1Sound)
+        m_pCrashA1Sound->SetOn(false, true);
+
+    if (m_pCrashK1Sound)
+        m_pCrashK1Sound->SetOn(false, true);
+
+    if (m_pCrashB1Sound)
+        m_pCrashB1Sound->SetOn(false, true);
+
+    if (m_pCrashC1Sound)
+        m_pCrashC1Sound->SetOn(false, true);
+
+    if (m_pCrashA2Sound)
+        m_pCrashA2Sound->SetOn(false, true);
+
+    if (m_pCrashK2Sound)
+        m_pCrashK2Sound->SetOn(false, true);
+    
+    if (m_pCrashB2Sound)
+        m_pCrashB2Sound->SetOn(false, true);
+
+    if (m_pCrashC2Sound)
+        m_pCrashC2Sound->SetOn(false, true);
+
+    if (m_pDoorOpenSound)
+        m_pDoorOpenSound->SetOn(false, true);
+
+    if (m_pDoorCloseSound)
+        m_pDoorCloseSound->SetOn(false, true);
+
+    if (m_pWheelPunctureSound)
+        m_pWheelPunctureSound->SetOn(false, true);
+
+    return true;
 }
 
 I3D_sound* C_Vehicle::SoundInit(

@@ -70,9 +70,9 @@ public:
 	bool SetClutch(float fClutch);
 	bool SetSteer(float fSteer);
 	bool SetSteeringLinearity(float fLin);
-	bool SoundOff();
 	bool SetFuel(float fFuel);
 	bool SetHandbrake(bool bDoBrake);
+	bool SoundOff();
 	bool EnableSounds(bool bEnable);
 	I3D_sound* SoundInit(const char* szSound, I3D_sound** pSoundOut, uint32_t uType, float v1, float v2, float v3, float v4, bool b1, bool b2);
 	bool InitSounds(S_CARINIT* init);
