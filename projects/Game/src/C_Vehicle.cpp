@@ -89,7 +89,7 @@ bool C_Vehicle::Engine(float deltaTime, float a3, float a4)
     vForward.y = v26 * m_aUp.x - v24 * m_aUp.z;
     vForward.z = v24 * m_aUp.y - v25 * m_aUp.x;
     
-    float angle = vForward.AngleTo(m_aForward);
+    float angle = (float)vForward.AngleTo(m_aForward);
   
     *(float*)((uint32_t)this + 0x350) = angle;
 
@@ -352,6 +352,11 @@ bool C_Vehicle::EnableSounds(bool bEnable)
     return bResult;
 }
 
+bool C_Vehicle::UpdateSteeringWheels(float fDeltaTime)
+{
+    return false;
+}
+
 bool C_Vehicle::SoundOff()
 {    
     if (m_pEngineOnSound)
@@ -555,6 +560,9 @@ void C_Vehicle::InitHooks()
 {
     ReversibleHooks::Install("C_Vehicle", "InitSounds",             0x4EAC70, &C_Vehicle::InitSounds);
     ReversibleHooks::Install("C_Vehicle", "HornSnd",                0x4EDA40, &C_Vehicle::HornSnd);
+
+    ReversibleHooks::Install("C_Vehicle", "UpdateSteeringWheels", 0x4DDC60, &C_Vehicle::UpdateSteeringWheels);
+
     ReversibleHooks::Install("C_Vehicle", "LockVehicle",            0x4CD600, &C_Vehicle::LockVehicle);
     ReversibleHooks::Install("C_Vehicle", "Engine",                 0x4E1CE0, &C_Vehicle::Engine);
     ReversibleHooks::Install("C_Vehicle", "SetBrake",               0x4CB2D0, &C_Vehicle::SetBrake);

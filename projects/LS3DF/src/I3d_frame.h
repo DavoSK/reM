@@ -1,5 +1,6 @@
 #pragma once
 #include "I3d_math.h"
+#include "C_str.hpp"
 #include "Common.h"
 
 #include <cstdint>
@@ -65,7 +66,7 @@ public:
 	void SetRot(const S_quat& aRot);
 	const S_quat& GetRot() const { return m_aRot;  }
 
-	const char* GetName() { return m_pSzName; }
+	const C_str& GetName() { return m_pSzName; }
 	const S_matrix& GetMatrix() const { return m_aLocalMat; }
 
 	static void InitHooks();
@@ -83,8 +84,8 @@ private:
 	I3D_bsphere m_aLocalBSphere;
 	I3D_bbox m_aWorldBBOX;
 	I3D_bsphere m_aWorldBSphere;
-	char* m_pSzName;
-	char* m_pSzModelName;
+	C_str m_pSzName;
+	C_str m_pSzModelName;
 	uint32_t _pad1;
 	I3D_frame* m_pOwner;
 	int32_t m_eFrameType;

@@ -74,6 +74,7 @@ public:
 	bool SetHandbrake(bool bDoBrake);
 	bool SoundOff();
 	bool EnableSounds(bool bEnable);
+	bool UpdateSteeringWheels(float fDeltaTime);
 	I3D_sound* SoundInit(const char* szSound, I3D_sound** pSoundOut, uint32_t uType, float v1, float v2, float v3, float v4, bool b1, bool b2);
 	bool InitSounds(S_CARINIT* init);
 	int LockVehicle(bool bLock);
