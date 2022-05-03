@@ -224,6 +224,7 @@ private:
 	uint8_t _pad27_4[4];
 	S_vector m_aSpeed;
 	float m_fMaxFuel;
+	uint8_t m_pad[0x1000];
 };
 
 #pragma pack(pop)

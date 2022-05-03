@@ -29,8 +29,19 @@ S_vector* C_Vehicle::GetWheelCamPos(S_vector* outPos, int wheelIdx, S_vector* of
     return outPos;
 }
 
+static C_Vehicle* initedFrom = nullptr;
+static bool skipLoop = false;
+
 bool C_Vehicle::Engine(float deltaTime, float a3, float a4)
 {
+     if (!skipLoop && initedFrom == this) {
+         skipLoop = true;
+         testVehicle->Engine(deltaTime, a3, a4);
+         skipLoop = false;
+         printf("pos: %f %f %f\n", testVehicle->m_aPosition.x, testVehicle->m_aPosition.y, testVehicle->m_aPosition.z);
+     }
+
+
     //NOTE: this looks like its not vector  
     //just used as container for 3 floats
     S_vector v42(0.0f, 0.0f, 0.0f);
@@ -354,6 +365,10 @@ bool C_Vehicle::EnableSounds(bool bEnable)
 
 bool C_Vehicle::UpdateSteeringWheels(float fDeltaTime)
 {
+    for (size_t i = 0; i < m_iWheelCnt; i++) {
+        auto* wheel = m_pWheels[i];
+        printf("%s\n", wheel->m_pFrame->GetName());
+    }
     return false;
 }
 
@@ -517,7 +532,7 @@ int C_Vehicle::HornSnd(bool bHorn)
 {
     if (bHorn)
     {
-        I3D_sound* m_pMuteSound = nullptr;
+        I3D_sound* pMuteSound = nullptr;
 
         //NOTE: whats this ?
         if (*((uint8_t*)(uint32_t)this + 0x491))
@@ -528,7 +543,7 @@ int C_Vehicle::HornSnd(bool bHorn)
                 m_pHornSound2->SetVolume(1.0f);
             }
             
-            m_pMuteSound = m_pHornSound;
+            pMuteSound = m_pHornSound;
         }
         else
         {
@@ -538,11 +553,11 @@ int C_Vehicle::HornSnd(bool bHorn)
                 m_pHornSound->SetVolume(1.0f);
             }
             
-            m_pMuteSound = m_pHornSound2;
+            pMuteSound = m_pHornSound2;
         }
 
-        if (m_pMuteSound)
-            m_pMuteSound->SetOn(false);
+        if (pMuteSound)
+            pMuteSound->SetOn(false);
     }
     else
     {
